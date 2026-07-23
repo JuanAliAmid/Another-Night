@@ -2,26 +2,32 @@ import mongoose from 'mongoose'
 
 const ticketSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
+    buyer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
-      trim: true,
     },
 
-    description: {
-      type: String,
+    event: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Event',
       required: true,
-      trim: true, 
-      default: "",
     },
 
-    starts_at: {
+    status: {
+      type: String,
+      enum: ['active', 'expired'],
+      default: 'active',
+    },
+
+    expires_at: {
       type: Date,
       required: true,
     },
-    total: {
-        type: Number,
-        required: true,
+
+    amount: {
+      type: Number,
+      required: true,
     }
   },
   {

@@ -4,11 +4,6 @@
 
 Sitio sobre eventos e inscripciones a fiestas electrónicas desarrollado como proyecto de Backend II.
 
-## Tecnologías
-- Dotenv
-- Express
-- Mongoose
- 
 ## Instalación
 
 1. Cloná el repositorio
@@ -30,11 +25,17 @@ npm install
 PORT=8080
 MONGODB_URI="mongodb://localhost:27017/another-night"
 ```
+
 4. Levantá el servidor:
 
 ```bash
 npm start
 ```
+
+## Tecnologías
+- Dotenv
+- Express
+- Mongoose
 
 ## Variables de entorno
 

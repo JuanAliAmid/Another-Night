@@ -5,8 +5,11 @@ import sessionsRouter from './sessions.routes.js';
 import usersRouter from './users.routes.js';
 import express from 'express';
 
-const router = Router ();
+const router = Router();
 
+router.get('/health', (request, response) => {
+    response.status(200).json({ status: "success", message: "Servidor activo" });
+})
 router.use('/users', usersRouter);
 router.use('/sessions', sessionsRouter);
 router.use('/events', eventsRouter);

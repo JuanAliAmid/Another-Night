@@ -23,7 +23,7 @@ npm install
 
 ```
 PORT=8080
-MONGODB_URI="mongodb://localhost:27017/another-night"
+MONGO_URL="mongodb://localhost:27017/another-night"
 ```
 
 4. Levantá el servidor:
@@ -40,7 +40,7 @@ npm start
 ## Variables de entorno
 
 - PORT = #Puerto del servidor
-- MONGODB_URI = #URL de mongodb
+- MONGO_URL = #URL de mongodb
 - NODE_ENV = #Entorno: development | production | test
 - JWT_SECRET = #Clave secreta para firmar JWT
 

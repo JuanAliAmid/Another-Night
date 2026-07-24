@@ -12,5 +12,5 @@ for (const key of required) {
 
 export const env = {
     port: Number(process.env.PORT),
-    mongodb_uri: process.env.MONGODB_URI,
+    mongo_url: process.env.MONGO_URL,
 }

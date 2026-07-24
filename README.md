@@ -33,29 +33,30 @@ npm start
 ```
 
 ## Tecnologías
+
 - Dotenv
 - Express
 - Mongoose
 
 ## Variables de entorno
 
-- PORT = #Puerto del servidor
-- MONGO_URL = #URL de mongodb
-- NODE_ENV = #Entorno: development | production | test
-- JWT_SECRET = #Clave secreta para firmar JWT
+- `PORT` = #Puerto del servidor
+- `MONGO_URL` = #URL de mongodb
+- `NODE_ENV` = #Entorno: development | production | test 
+- `JWT_SECRET` = #Clave secreta para firmar JWT          
 
 ## Cómo ejecutar
 
-- npm start #"node src/server.js"
-- npm run dev #"node --watch src/server.js"
+- `npm start` "node src/server.js"
+- `npm run dev` "node --watch src/server.js"
 
 ## Rutas disponibles
 
-- /api/health
-- /api/users
-- /api/sessions
-- /api/events
-- /api/tickets
+- `/api/health`
+- `/api/users`
+- `/api/sessions`
+- `/api/events`
+- `/api/tickets`
 
 ## Estructura de carpetas
 ```

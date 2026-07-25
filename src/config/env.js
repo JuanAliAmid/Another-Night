@@ -2,7 +2,7 @@ import { config } from "dotenv";
 
 config();
 
-const required = ['PORT'];
+const required = ['PORT', 'MONGO_URL'];
 
 for (const key of required) {
     if (!process.env[key]) {

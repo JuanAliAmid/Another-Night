@@ -1,9 +1,10 @@
-import EventModel from '../models/event.model.js';
+import eventService from '../services/event.service.js';
 
 const EventsController = {
     async list(_request, response, next) {
         try {
-            return response.status(200).json({ status: 'success', total: 0, payload: [] });
+            const events = await eventService.getAllEventsService();
+            return response.status(200).json({ status: 'success', total: events.length, payload: events });
         } catch (error) {
             return next(error);
         }

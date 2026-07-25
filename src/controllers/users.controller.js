@@ -1,13 +1,16 @@
-import UserModel from '../models/user.model.js';
+import userService from '../services/user.service.js';
 
-const UsersController = {
+const getAllUsersController = {
     async list(_request, response, next) {
         try {
-            return response.status(200).json({ status: 'success', payload: [] });
+            const users = await userService.getAllUsersService()
+            return response.status(200).json({ status: 'success', payload: users });
         } catch (error) {
             return next(error);
         }
     }
 }
 
-export default UsersController;
+export default getAllUsersController;
+
+

@@ -1,13 +1,14 @@
-import TicketsModel from '../models/ticket.model.js';
+import ticketService from '../services/ticket.service.js';
 
-const TicketsController = {
+const getAllTicketsController = {
     async list(_request, response, next) {
         try {
-            return response.status(200).json({ status: 'success', total: 0, payload: [] });
+            const tickets = await ticketService.getAllTicketsService()
+            return response.status(200).json({ status: 'success', total: tickets.length, payload: tickets });
         } catch (error) {
             return next(error);
         }
     },
 
 }
-export default TicketsController;
+export default getAllTicketsController;

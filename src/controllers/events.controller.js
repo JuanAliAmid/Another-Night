@@ -1,6 +1,6 @@
 import eventService from '../services/event.service.js';
 
-const EventsController = {
+const getaAllEventsController = {
     async list(_request, response, next) {
         try {
             const events = await eventService.getAllEventsService();
@@ -11,4 +11,4 @@ const EventsController = {
     }
 }
 
-export default  EventsController;
+export default  getaAllEventsController;

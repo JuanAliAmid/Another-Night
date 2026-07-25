@@ -1,6 +1,5 @@
 import express from 'express';
 import apiRouter from './routes/index.js';
-import { error } from 'console';
 
 const app = express()
 

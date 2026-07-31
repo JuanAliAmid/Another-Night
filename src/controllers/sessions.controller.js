@@ -1,8 +1,7 @@
 import { request, response } from "express";
-import { createHash, isValidPassword } from "../utils/hash.js";
-import userModel from "../models/user.model.js";
-import sessionsDao from '../dao/sessions.dao.js';
+import { isValidPassword } from "../utils/hash.js";
 import userDto from "../utils/user.dto.js";
+import userService from "../services/user.service.js";
 
 const SessionsStatus = async (_request, response, next) => { //STATUS
 
@@ -25,28 +24,22 @@ const Sessionsregister = async (request, response) => { //REGISTER
             response.setHeader('Content-Type', 'application/json');
             return response.status(400).json({ error: "error", message: 'Faltan campos obligatorios' });
         };
-        if (!email.includes('@')) {
-            response.setHeader('Content-Type', 'application/json');
-            return response.status(400).json({ error: "error", message: 'El caracter @ es obligatorio en el email' });
-        };
+ 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        const existeEmail = await sessionsDao.findUserByEmail(email);
+        if (!emailRegex.test(email)) {
+            response.setHeader('Content-Type', 'application/json');
+            return response.status(400).json({ error: "error", message: 'Formato de email incorrecto' });
+        }
+
+        const existeEmail = await userService.findUserByEmail(email);
 
         if (existeEmail) {
+            response.setHeader('Content-Type', 'application/json');
             return response.status(409).json({ error: "error", message: 'El email ya está registrado' });
         };
 
-        if (String(password) === '12345678910' || String(password) === '12345' || password === 'aeiou') {
-            response.setHeader('Content-Type', 'application/json');
-            return response.status(400).json({ error: 'Contraseña insegura, intente con una nueva' });
-        } else if (String(password).length <= 6) {
-            response.setHeader('Content-Type', 'application/json');
-            return response.status(400).json({ error: "error", message: 'La contraseña debe tener más de 6 caracteres' });
-        };
-
-        password = await createHash(password);
-
-        const newUser = await sessionsDao.createUser({ first_name, last_name, email, password });
+        const newUser = await userService.createUser({ first_name, last_name, email, password });
 
         const resto = userDto(newUser.toObject());
 
@@ -69,7 +62,7 @@ const SessionsLogin = async (request, response) => { //LOGIN
     }
 
     try {
-        const user = await sessionsDao.findUserByEmail(email);
+        const user = await userService.findUserByEmail(email);
 
         if (!user) {
             response.setHeader('Content-Type', 'application/json');
@@ -95,8 +88,8 @@ const SessionsLogin = async (request, response) => { //LOGIN
 
 };
 
-export default { 
-    SessionsStatus, 
-    Sessionsregister, 
-    SessionsLogin 
+export default {
+    SessionsStatus,
+    Sessionsregister,
+    SessionsLogin
 };

@@ -5,6 +5,18 @@ const getAllUsersDao = async () => {
     return users;
 }
 
+//Sessions
+const findUserByEmail = async (email) => {
+    const cleanEmail = email.toLowerCase().trim()
+    return await userModel.findOne({ email: cleanEmail }).lean();
+};
+
+const createUser = async (userData) => {
+    return await userModel.create( userData );
+};
+
 export default {
-    getAllUsersDao
+    getAllUsersDao,
+    createUser,
+    findUserByEmail
 }

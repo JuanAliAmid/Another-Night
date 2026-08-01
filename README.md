@@ -93,17 +93,17 @@ Content-Type: application/json
 
 ```json
 {
-  "message": "Registro exitoso",
-  "resto": {
-    "first_name": "Amelia",
-    "last_name": "Perez",
-    "email": "amelia@mail.com",
-    "role": "user",
-    "_id": "6a6cf7b577f3e640583b5cb5",
-    "createdAt": "2026-07-31T19:29:57.297Z",
-    "updatedAt": "2026-07-31T19:29:57.297Z",
-    "__v": 0
-  }
+    "status": "success",
+    "payload": {
+        "first_name": "Amelia",
+        "last_name": "Perez",
+        "email": "amelia@mail.com",
+        "role": "user",
+        "_id": "6a6cf7b577f3e640583b5cb5",
+        "createdAt": "2026-07-31T19:29:57.297Z",
+        "updatedAt": "2026-07-31T19:29:57.297Z",
+        "__v": 0      
+    }
 }
 ```
 

@@ -44,7 +44,7 @@ const Sessionsregister = async (request, response) => { //REGISTER
         const resto = userDto(newUser.toObject());
 
         response.setHeader('Content-Type', 'application/json');
-        response.status(201).json({ message: 'Registro exitoso', resto });
+        response.status(201).json({ status: 'success', payload: resto });
 
     } catch (error) {
         response.setHeader('Content-Type', 'application/json');

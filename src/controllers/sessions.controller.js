@@ -2,8 +2,11 @@ import { request, response } from "express";
 import { isValidPassword } from "../utils/hash.js";
 import userDto from "../utils/user.dto.js";
 import userService from "../services/user.service.js";
+import jwt from 'jsonwebtoken';
+import { env } from '../config/env.js';
 
-const SessionsStatus = async (_request, response, next) => { //STATUS
+//----------------------------STATUS----------------------------
+const SessionsStatus = async (_request, response, next) => {
 
     try {
         return response.status(200).json({ status: 'success', message: "Recurso sessions preparado. Sin logica de autenticacion en sessions" });
@@ -13,7 +16,8 @@ const SessionsStatus = async (_request, response, next) => { //STATUS
 
 };
 
-const Sessionsregister = async (request, response) => { //REGISTER
+//----------------------------REGISTER----------------------------
+const Sessionsregister = async (request, response) => {
 
     try {
 
@@ -24,7 +28,7 @@ const Sessionsregister = async (request, response) => { //REGISTER
             response.setHeader('Content-Type', 'application/json');
             return response.status(400).json({ error: "error", message: 'Faltan campos obligatorios' });
         };
- 
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(email)) {
@@ -50,10 +54,10 @@ const Sessionsregister = async (request, response) => { //REGISTER
         response.setHeader('Content-Type', 'application/json');
         return response.status(400).json({ error: error.message });
     };
-
 };
 
-const SessionsLogin = async (request, response) => { //LOGIN
+//----------------------------LOGIN----------------------------
+const SessionsLogin = async (request, response) => {
     const { email, password } = request.body;
 
     if (!email || !password) {
@@ -77,19 +81,28 @@ const SessionsLogin = async (request, response) => { //LOGIN
         }
 
         const resto = userDto(user);
+        let token = jwt.sign(resto, env.jwt_secret, { expiresIn: '1h' });
 
+        response.cookie('cookietoken', token, { maxAge: 3600000, httpOnly: true, sameSite: 'lax', secure: true })
         response.setHeader('Content-Type', 'application/json');
         return response.status(200).json({ message: 'Login exitoso', resto });
 
     } catch (error) {
         response.setHeader('Content-Type', 'application/json');
-        return response.status(400).json({ error: error.message });
+        return response.status(400).json({ error: `${error.message} 123` });
     }
-
 };
+
+//----------------------------LOGOUT----------------------------
+const SessionLogout = (request, response) => {
+    response.clearCookie('cookietoken');
+    response.setHeader('Content-Type', 'application/json');
+    return response.status(200).json({ payload: 'Logout exitoso' });
+}
 
 export default {
     SessionsStatus,
     Sessionsregister,
-    SessionsLogin
+    SessionsLogin,
+    SessionLogout
 };

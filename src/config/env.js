@@ -2,7 +2,7 @@ import { config } from "dotenv";
 
 config();
 
-const required = ['PORT', 'MONGO_URL'];
+const required = ['PORT', 'MONGO_URL', 'JWT_SECRET'];
 
 for (const key of required) {
     if (!process.env[key]) {
@@ -13,4 +13,5 @@ for (const key of required) {
 export const env = {
     port: Number(process.env.PORT),
     mongo_url: process.env.MONGO_URL,
+    jwt_secret: process.env.JWT_SECRET
 }

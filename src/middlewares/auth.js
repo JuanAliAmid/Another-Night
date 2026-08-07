@@ -1,23 +1,20 @@
-import { request, response } from "express";
-import jwt from "jsonwebtoken";
-import { env } from '../config/env.js';
-
+import jwtLoginVerify from '../utils/jwt.js';
 
 const auth = (request, response, next) => {
 
-    if (!request.cookies.cookietoken) {
+    if (!request.cookies.currentUser) {
         response.setHeader('Content-Type', 'application/json');
-        return response.status(401).json({ error: `No hay usuarios autenticados` });
+        return response.status(401).json({ status: 'error', message: `No autenticado` });
     }
 
-    let token = request.cookies.cookietoken;
+    let token = request.cookies.currentUser;
 
     try {
-        let payload = jwt.verify(token, env.jwt_secret);
+        let payload = jwtLoginVerify.verifyToken(token);
         request.user = payload;
     } catch (error) {
         response.setHeader('Content-Type', 'application/json');
-        return response.status(401).json({ error: `Error de token` });
+        return response.status(401).json({ status: 'error', message: `No autenticado` });
     }
 
     next();

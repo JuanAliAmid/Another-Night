@@ -2,7 +2,6 @@ import { request, response } from "express";
 import { isValidPassword } from "../utils/hash.js";
 import userDto from "../utils/user.dto.js";
 import userService from "../services/user.service.js";
-import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import jwtLoginVerify from '../utils/jwt.js';
 

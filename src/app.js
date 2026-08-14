@@ -3,12 +3,17 @@ import apiRouter from './routes/index.js';
 import errorHandler from './middlewares/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import { env } from '../src/config/env.js';
+import './config/passport.config.js';
+import passport from 'passport';
+
 
 const app = express()
 
 app.use(cookieParser())
 
 app.use(express.json())
+
+app.use(passport.initialize())
 
 app.use('/api', apiRouter);
 

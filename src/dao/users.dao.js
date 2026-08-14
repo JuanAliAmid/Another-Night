@@ -11,6 +11,10 @@ const findUserByEmail = async (email) => {
     return await userModel.findOne({ email: cleanEmail }).lean();
 };
 
+const findUserById = async (id) => {
+    return await userModel.findById(id)
+};
+
 const createUser = async (userData) => {
     return await userModel.create( userData );
 };
@@ -18,5 +22,6 @@ const createUser = async (userData) => {
 export default {
     getAllUsersDao,
     createUser,
-    findUserByEmail
+    findUserByEmail,
+    findUserById
 }

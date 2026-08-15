@@ -12,7 +12,7 @@ const findUserByEmail = async (email) => {
 };
 
 const findUserById = async (id) => {
-    return await userModel.findById(id)
+    return await userModel.findById(id).select('-password')
 };
 
 const createUser = async (userData) => {

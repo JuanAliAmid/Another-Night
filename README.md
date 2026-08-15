@@ -40,6 +40,11 @@ npm start
 - Dotenv
 - Express
 - Mongoose
+- Passport
+- passport-local
+- jsonwebtoken
+- bcrypt 
+- passport-jwt
 
 ## Variables de entorno
 
@@ -54,6 +59,18 @@ npm start
 
 - `npm start` "node src/server.js"
 - `npm run dev` "node --watch src/server.js"
+
+## Estrategias Passport
+
+La estrategia de `register` valida la existencia de los campos first_name, last_name, email y password, comunicando que son obligatorios si falta alguno. Valida el formato del password (exige más de 6 caracteres y rechaza contraseñas obvias como 12345, 12345678910 o aeiou) y el formato del email mediante una expresión regular. El email se normaliza a minúsculas y sin espacios antes de chequear si ya está registrado, evitando que Ana@Mail.com y ana@mail.com se traten como usuarios distintos. Si el email ya existe, se rechaza el registro. Si todas las validaciones pasan, el password se hashea con bcrypt y el usuario se crea; la estrategia entrega el nuevo usuario a done(), que queda disponible para que la ruta arme la respuesta HTTP correspondiente.
+
+La estrategia de `Login` valida la existencia de los campos email y password, comunicando que son obligatorios si falta alguno. Valida si los datos ingresados pertenecen a un usuario existente. Valida la contraseña hasheada con la original, si algunos de estos casos falla se rechaza el login con el mismo mensaje genérico siempre por seguridad, en caso de tener éxito se devuelve al usuario con datos minimos necesarios y permitiendo que la ruta genere el jwt y cookie.
+
+La estrategia `jwt` busca el token en el header, sino lo encuentra ahí lo busca dentro de la cookie. Con el id busca un usuario, si el mismo no existe devolvemos status(401) con message: "Credenciales inválidas". En caso de éxito devolvemos el usuario excluyendo datos sensibles, solo con id, email y role.
+
+## Providers externos 
+
+El proyecto se encuentra preparado para providers externos futuros, solo se debería integrar lógica en passport.config.js. Por ejemplo, una ruta nueva como /api/sessions/google podría usar passport.authenticate('google', ...) para disparar esa estrategia y app.js nunca se modifica.
 
 ## Rutas disponibles
 
@@ -206,9 +223,7 @@ Cookie: currentUser=<token>
   "payload": {
     "id": "6a761e058195c938712267ad",
     "email": "ramos@email.com",
-    "role": "user",
-    "iat": 1786125842,
-    "exp": 1786730642
+    "role": "user"
   }
 }
 ```
@@ -290,6 +305,7 @@ Another Night/
 │   │   └── mongo.png            
 │   ├── config/
 │   │   ├── database.js
+│   │   ├── passport.config.js
 │   │   └── env.js
 │   ├── routes/
 │   │   ├── events.routes.js

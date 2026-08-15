@@ -3,7 +3,6 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { createHash, isValidPassword } from '../utils/hash.js';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { env } from './env.js';
-import bcrypt from 'bcrypt';
 import usersDao from '../dao/users.dao.js';
 
 const cookieExtractor = req => {
@@ -32,6 +31,8 @@ const jwtVerify = async (payload, done) => {
     }
 }
 
+// estrategias locales ↓↓
+
 //register
 passport.use(
     'register',
@@ -43,11 +44,22 @@ passport.use(
         async (req, email, password, done) => {
             try {
                 const { first_name, last_name } = req.body
+                password = String(password);
 
                 if (!first_name || !last_name || !email || !password) {
                     return done(null, false, {
                         message: 'Todos los campos son obligatorios'
                     })
+                }
+
+                if (password.length <= 6 || password === "12345" || password === "12345678910" || password === "aeiou") {
+                    return done(null, false, ({ message: "Formato de contraseña inválido" }))
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!emailRegex.test(email)) {
+                    return done(null, false, ({ message: 'Formato de email incorrecto' }))
                 }
 
                 const normalizedEmail = email.toLowerCase().trim()
@@ -83,10 +95,12 @@ passport.use(
         async (email, password, done) => {
 
             try {
+                if (!email || !password) {
+                    return done(null, false, ({ status: "error", message: 'Complete los campos "email" y "password"' }))
+                }
                 const normalizedEmail = email.toLowerCase().trim()
 
                 const user = await usersDao.findUserByEmail(normalizedEmail)
-
 
                 if (!user) {
                     return done(null, false, {
@@ -98,7 +112,6 @@ passport.use(
                     password,
                     user.password
                 )
-
 
                 if (!validPassword) {
                     return done(null, false, {
@@ -118,6 +131,4 @@ passport.use(
 //current 
 passport.use("jwt", new JwtStrategy(jwtOptions, jwtVerify));
 
-export default {
-    initPassport
-}
+// futuras estaregias externas ↓↓

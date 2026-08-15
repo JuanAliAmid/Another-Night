@@ -54,7 +54,6 @@ npm start
 - `JWT_SECRET` = #Clave secreta para firmar JWT    
 - `JWT_EXPIRES_IN`= #Duración de token
 
-
 ## Cómo ejecutar
 
 - `npm start` "node src/server.js"

@@ -334,7 +334,8 @@ Another Night/
 │   │   ├── event.model.js           
 │   │   └── ticket.model.js          
 │   ├── middlewares/
-│   │   ├── auth.js
+│   │   ├── authMiddle.js
+│   │   ├── roleAuth.js
 │   │   └── errorHandler.js          
 │   └── utils/
 │       ├── hash.js

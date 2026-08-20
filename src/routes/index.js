@@ -3,7 +3,6 @@ import eventsRouter from './events.routes.js';
 import ticketsRouter from './tickets.routes.js';
 import sessionsRouter from './sessions.routes.js';
 import usersRouter from './users.routes.js';
-import express from 'express';
 
 const router = Router();
 

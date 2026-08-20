@@ -128,7 +128,7 @@ passport.use(
     )
 )
 
-//current 
+//current / logout
 passport.use("jwt", new JwtStrategy(jwtOptions, jwtVerify));
 
-// futuras estaregias externas ↓↓
+//futuras estaregias externas ↓↓

@@ -1,16 +1,19 @@
 import { Router } from "express";
 import SessionsController from "../controllers/sessions.controller.js";
-import authMiddle from "../middlewares/auth.js";
 import passport from "passport";
 import userDto from "../utils/user.dto.js";
 import { env } from "../config/env.js";
 import jwtLoginVerify from '../utils/jwt.js';
+import roleAuth from "../middlewares/roleAuth.js";
+import authMiddle from "../middlewares/authMiddle.js";
+import roleAuth from "../middlewares/roleAuth.js";
+import usersDao from "../dao/users.dao.js";
 
 const router = Router();
 
 
 router.post('/login', (req, res, next) => {
-    passport.authenticate('login', (err, user, info) => {
+    passport.authenticate('login', { session: false }, (err, user, info) => {
 
         if (err) {
             return res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
@@ -44,7 +47,7 @@ router.post('/login', (req, res, next) => {
 })
 
 router.post('/register', (req, res, next) => {
-    passport.authenticate('register', (err, user, info) => {
+    passport.authenticate('register', { session: false }, (err, user, info) => {
 
         if (err) {
             return res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
@@ -71,9 +74,8 @@ router.post('/register', (req, res, next) => {
     })(req, res, next);
 })
 
-
 router.get('/current', (req, res, next) => {
-    passport.authenticate("jwt", (err, user, info) => {
+    passport.authenticate("jwt", { session: false }, roleAuth.rolesAuth('user', 'admin'), (err, user, info) => {
 
         if (err) {
             return res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
@@ -95,7 +97,36 @@ router.get('/current', (req, res, next) => {
     })(req, res, next);
 });
 
-router.post('/logout', authMiddle.auth, SessionsController.SessionLogout);
+router.post('/logout', (req, res, next) => {
+    passport.authenticate('jwt', { session: false }, (err, user) => {
+
+        if (err) return next(err);
+        if (!user) {
+            return res.status(401).json({ status: 'error', message: 'No autenticado' });
+        }
+
+        req.user = user;
+
+        req.logout((err) => {
+            if (err) return next(err);
+            res.clearCookie('currentUser');
+            res.status(200).json({ status: 'success', message: 'Logout exitoso' });
+        });
+
+    })(req, res, next);
+});
+
+router.get('/users', authMiddle.auth, roleAuth.rolesAuth('admin'), async (req, res) => {
+    try {
+       const users = await usersDao.getAllUsersDao();
+       res.status(200).json({status:'success', payload: users}) 
+
+    } catch (error) {
+        res.status(500).json({status:'error', message: 'Error de servidor'})
+    } 
+});
+    
+
 router.get('/status', SessionsController.SessionsStatus);
 
 export default router;

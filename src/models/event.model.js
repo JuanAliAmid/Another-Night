@@ -22,7 +22,7 @@ const eventsSchema = new mongoose.Schema(
 
     organizer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'User', //para obtener los datos del oreganizer a futuro si es necesario...
       required: true
     }
 

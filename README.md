@@ -284,6 +284,62 @@ POST /api/sessions/logout
 **Cookie `currentUser` eliminada (Expires en el pasado):**
 ![Registro de ruta logout - cookie](src/assets/logoutCookie.png)
 
+## Roles y autorización
+
+El modelo `User` tiene un campo `role` (`enum: ['admin', 'organizer', 'user']`, `default: 'user'`). El registro público (`POST /api/sessions/register`) ignora cualquier `role` enviado en el body; el usuario siempre se crea como `user`.
+
+### Matriz de permisos
+
+| Acción                             | user | organizer |  admin | 
+|-----------------------------------------------------------------
+| Consultar eventos publicados       | ✅  | ✅        | ✅     |
+| Crear eventos                      | ❌  | ✅        | ✅     |  
+| Modificar/cancelar eventos propios | ❌  | ✅        | ✅     |
+| Modificar cualquier evento         | ❌  | ❌        | ✅     |
+| Ver todos los usuarios             | ❌  | ❌        | ✅     |
+
+### Middlewares
+
+- **`authMiddle.auth`** — autenticación. Valida el JWT (header o cookie `currentUser`) vía Passport (`strategy 'jwt'`). Puebla `req.user` o responde `401`.
+- **`roleAuth.rolesAuth(...roles)`** — autorización. Compara `req.user.role` contra los roles permitidos. Responde `403` si no coincide. Va siempre después de `auth`.
+
+### 401 vs 403
+
+- **401** = no hay sesión válida (falta o es inválido el token) → *"no sabemos quién sos"*.
+- **403** = hay sesión válida, pero sin permiso para esa acción (rol incorrecto, o no es dueño del recurso) → *"sabemos quién sos, pero no podés hacer esto"*.
+
+### Rutas protegidas
+
+| Método | Ruta                    | Middlewares                                                  | Permiso                                |
+|--------|-------------------------|--------------------------------------------------------------|----------------------------------------|
+| GET    | `/api/sessions/current` | `auth`                                                       | Cualquier autenticado                  |
+| GET    | `/api/sessions/users`   | `auth`, `rolesAuth('admin')`                                 | `admin`                                |
+| POST   | `/api/events`           | `auth`, `rolesAuth('organizer','admin')`                     | `organizer`, `admin`                   |
+| PATCH  | `/api/events/:id`       | `auth`, `rolesAuth('organizer','admin')` + chequeo de dueño  | `organizer` (propios), `admin` (todos) |
+
+### Propiedad de recursos
+
+En `PATCH /api/events/:id`, si el rol es `organizer`, se compara `event.organizer` contra `req.user._id`; si no coincide, `403`. `admin` no tiene esta restricción. Si el evento no existe, `404`.
+
+### Evidencia
+
+**`POST /api/events` con rol `user` (403):**
+![Crear evento sin permisos](src/assets/event-create-403.png)
+
+**`POST /api/events` con rol `organizer` (201):**
+![Crear evento exitoso](src/assets/201-evento-creado.png)
+
+**Ruta administrativa con `organizer` (403):**
+![Ruta admin sin permisos](src/assets/403-sessions-users -- no-admin.png)
+
+**Ruta administrativa con `admin` (200):**
+![Ruta admin exitosa](src/assets/200-sessoins-users--admin.png)
+
+**Ruta privada sin cookie (401):**
+![Sin sesión](src/assets/401-sessions-current.png)
+
+**`organizer` modificando evento ajeno (403):**
+![Evento ajeno sin permisos](src/assets/otro-dueño-403.png)
 
 ## Estructura de carpetas
 ```

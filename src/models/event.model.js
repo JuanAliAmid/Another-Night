@@ -11,17 +11,24 @@ const eventsSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      trim: true, 
+      trim: true,
       default: "",
     },
 
     starts_at: {
       type: Date,
       required: true,
+    },
+
+    organizer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
     }
+
   },
-  {
-    timestamps: true,
+{
+  timestamps: true,
     versionKey: false,
   }
 )

@@ -6,7 +6,6 @@ import { env } from "../config/env.js";
 import jwtLoginVerify from '../utils/jwt.js';
 import roleAuth from "../middlewares/roleAuth.js";
 import authMiddle from "../middlewares/authMiddle.js";
-import roleAuth from "../middlewares/roleAuth.js";
 import usersDao from "../dao/users.dao.js";
 
 const router = Router();
@@ -74,27 +73,17 @@ router.post('/register', (req, res, next) => {
     })(req, res, next);
 })
 
-router.get('/current', (req, res, next) => {
-    passport.authenticate("jwt", { session: false }, roleAuth.rolesAuth('user', 'admin'), (err, user, info) => {
+router.get('/current', authMiddle.auth, async (req, res) => {
 
-        if (err) {
-            return res.status(500).json({ status: 'error', message: 'Error interno del servidor' });
-        }
+    const { _id: id, email: email_user, role } = req.user;
 
-        if (!user) {
-            return res.status(401).json({ status: "error", message: 'Credenciales inválidas' });
-        }
+    const payload = {
+        id: id,
+        email: email_user,
+        role: role
+    }
+    return res.status(200).json({ status: 'success', payload: payload })
 
-        const { _id: id, email: email_user, role } = user;
-
-        const payload = {
-            id: id,
-            email: email_user,
-            role: role
-        }
-        return res.status(200).json({ status: 'success', payload: payload })
-
-    })(req, res, next);
 });
 
 router.post('/logout', (req, res, next) => {
@@ -116,16 +105,16 @@ router.post('/logout', (req, res, next) => {
     })(req, res, next);
 });
 
-router.get('/users', authMiddle.auth, roleAuth.rolesAuth('admin'), async (req, res) => {
+router.get('/users', authMiddle.auth, roleAuth.rolesAuth('admin'), async (_req, res) => {
     try {
-       const users = await usersDao.getAllUsersDao();
-       res.status(200).json({status:'success', payload: users}) 
+        const users = await usersDao.getAllUsersDao();
+        res.status(200).json({ status: 'success', payload: users })
 
     } catch (error) {
-        res.status(500).json({status:'error', message: 'Error de servidor'})
-    } 
+        res.status(500).json({ status: 'error', message: 'Error de servidor' })
+    }
 });
-    
+
 
 router.get('/status', SessionsController.SessionsStatus);
 

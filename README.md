@@ -290,13 +290,13 @@ El modelo `User` tiene un campo `role` (`enum: ['admin', 'organizer', 'user']`, 
 
 ### Matriz de permisos
 
-| Acción                             | user | organizer |  admin | 
-|-----------------------------------------------------------------
-| Consultar eventos publicados       | ✅  | ✅        | ✅     |
-| Crear eventos                      | ❌  | ✅        | ✅     |  
-| Modificar/cancelar eventos propios | ❌  | ✅        | ✅     |
-| Modificar cualquier evento         | ❌  | ❌        | ✅     |
-| Ver todos los usuarios             | ❌  | ❌        | ✅     |
+| Acción | user | organizer | admin |
+|---|---|---|---|
+| Consultar eventos publicados | ✅ | ✅ | ✅ |
+| Crear eventos | ❌ | ✅ | ✅ |
+| Modificar/cancelar eventos propios | ❌ | ✅ | ✅ |
+| Modificar cualquier evento | ❌ | ❌ | ✅ |
+| Ver todos los usuarios | ❌ | ❌ | ✅ |
 
 ### Middlewares
 
@@ -349,6 +349,12 @@ Another Night/
 │   ├── server.js 
 │   ├── assets/
 │   │   ├── client.png
+│   │   ├── otro-dueño-403.png
+│   │   ├── 401-sessions-current.png
+│   │   ├── 200-sessoins-users--admin.png
+│   │   ├── 403-sessions-users--no-admin.png
+│   │   ├── 201-evento-creado.png
+│   │   ├── event-create-403.png
 │   │   ├── current200.png
 │   │   ├── current401.png
 │   │   ├── login200.png

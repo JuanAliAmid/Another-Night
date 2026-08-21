@@ -35,7 +35,7 @@ router.post('/login', (req, res, next) => {
             id: id,
             email: email_user,
             role: role
-        }
+        };
 
         const token = jwtLoginVerify.generateToken(payload);
 
@@ -58,9 +58,9 @@ router.post('/register', (req, res, next) => {
             case 'Ya existe un usuario registrado con ese email':
                 return res.status(409).json({ status: "error", message: 'Ya existe un usuario registrado con ese email' });
             case 'Formato de email incorrecto':
-                return res.status(400).json({ status: "error", message: 'Formato de email incorrecto' })
+                return res.status(400).json({ status: "error", message: 'Formato de email incorrecto' });
             case 'Formato de contraseña inválido':
-                return res.status(422).json({ status: "error", message: 'Formato de contraseña inválido' })
+                return res.status(422).json({ status: "error", message: 'Formato de contraseña inválido' });
         }
 
         if (!user) {
@@ -81,7 +81,7 @@ router.get('/current', authMiddle.auth, async (req, res) => {
         id: id,
         email: email_user,
         role: role
-    }
+    };
     return res.status(200).json({ status: 'success', payload: payload })
 
 });
@@ -108,10 +108,10 @@ router.post('/logout', (req, res, next) => {
 router.get('/users', authMiddle.auth, roleAuth.rolesAuth('admin'), async (_req, res) => {
     try {
         const users = await usersDao.getAllUsersDao();
-        res.status(200).json({ status: 'success', payload: users })
+        res.status(200).json({ status: 'success', payload: users });
 
     } catch (error) {
-        res.status(500).json({ status: 'error', message: 'Error de servidor' })
+        res.status(500).json({ status: 'error', message: 'Error de servidor' });
     }
 });
 

@@ -5,7 +5,7 @@ import authMiddle from "../middlewares/authMiddle.js";
 
 const router = Router();
 
-router.get('/', EventsController.getaAllEventsController.list);
+router.get('/', EventsController.getaAllEventsController);
 
 router.post('/', authMiddle.auth, roleAuth.rolesAuth('organizer', 'admin'), EventsController.createEventController);
 

@@ -330,7 +330,7 @@ En `PATCH /api/events/:id`, si el rol es `organizer`, se compara `event.organize
 ![Crear evento exitoso](src/assets/201-evento-creado.png)
 
 **Ruta administrativa con `organizer` (403):**
-![Ruta admin sin permisos](src/assets/403-sessions-users -- no-admin.png)
+![Ruta admin sin permisos](src/assets/403-sessions-users-no-admin.png)
 
 **Ruta administrativa con `admin` (200):**
 ![Ruta admin exitosa](src/assets/200-sessoins-users--admin.png)

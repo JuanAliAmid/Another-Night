@@ -341,6 +341,53 @@ En `PATCH /api/events/:id`, si el rol es `organizer`, se compara `event.organize
 **`organizer` modificando evento ajeno (403):**
 ![Evento ajeno sin permisos](src/assets/otro-dueño-403.png)
 
+### API de Eventos
+
+#### Rutas disponibles
+
+|Método |Ruta                  |Descripción                                        |Rol requerido           |
+|-------|-----------------------|----------------------------------------------------|-------------------------|
+|POST   |/api/events            |Crear un nuevo evento                                |organizer, admin         |
+|GET    |/api/events            |Listar eventos (con filtros, paginación y orden)     |Público / autenticado*   |
+|GET    |/api/events/:id        |Obtener un evento por id                             |Público / autenticado*   |
+|PUT    |/api/events/:id        |Editar campos de un evento existente                 |organizer (dueño), admin |
+|PATCH  |/api/events/:id/status |Cambiar el estado de un evento                       |organizer (dueño), admin |
+
+#### Detalle de rutas
+
+- POST /api/events — Crear un nuevo evento. Se requiere estar logueado, y solo pueden crear eventos los usuarios con rol `organizer` o `admin`.
+
+- GET /api/events — Listar eventos, con filtros, paginación y orden. Acción de acceso público, con filtrado por campos, paginación `(page, limit)` y orden ascendente o descendente por fecha.
+
+- GET /api/events/:id — Obtener un evento por su id. Accesible para usuarios logueados y no logueados. Si el evento no existe, devuelve `res.status(404).json({ message: 'Evento no encontrado' })`.
+
+- PUT /api/events/:id — Editar campos de un evento existente. Permitido solo para el `organizer` dueño del evento o un `admin`. Si un usuario que no cumple esos requisitos intenta modificar el evento, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`.
+
+- PATCH /api/events/:id/status — Cambiar el estado de un evento. Permitido solo para el dueño del evento o un `admin`. Si no se cumplen esos requisitos, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`. Si se intenta asignar un valor de estado que no está en el `enum` de `EventModel`, devuelve `res.status(400).json({ message: 'Error de estado' })`.
+
+#### Filtros disponibles en el listado (GET /api/events)
+
+Se pasan como query params, todos opcionales y combinables entre sí:
+
+- `category`: filtra por categoría exacta. Valores permitidos: `Electronica`, `Reggaeton`, `Cumbia`, `Rock` (según el `enum` del modelo).
+- `status`: filtra por estado del evento. Valores permitidos: `draft`, `published`, `cancelled`, `finished`.
+- `page`: número de página `(default: 1)`.
+- `limit`: cantidad de resultados por página `(default: 10)`.
+- `sort`: orden por fecha. `date` para ascendente, `-date` para descendente.
+
+La respuesta incluye `data`, `page`, `limit`, `total` y `totalPages`.
+
+#### Roles y permisos
+- `user`: no puede crear ni modificar eventos.
+- `organizer`: puede crear eventos, y editar/cambiar el estado únicamente de los eventos donde figura como organizer.
+- `admin`: puede editar y cambiar el estado de cualquier evento, sin importar quién sea el organizador.
+#### Reglas de negocio principales
+- No se puede crear un evento con una fecha (`date`) anterior a la fecha actual.
+- `capacity` debe ser mayor a 0.
+- `price` no puede ser negativo.
+- Un evento en estado `cancelled` o `finished` no puede volver a cambiar de estado.
+- La edición de campos (`PUT`) y el cambio de estado (`PATCH` .../`status`) son operaciones separadas, con rutas distintas.
+
 ## Estructura de carpetas
 ```
 Another Night/

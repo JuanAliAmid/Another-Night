@@ -1,9 +1,10 @@
-import eventsController from "../controllers/events.controller.js";
 import EventModel from "../models/event.model.js";
 
-const getAllEventsDao = async () => {
-    const event = await EventModel.find();
-    return event;
+const getAllEventsDao = async (data) => {
+    const {limits, skip, filtrado, sort} = data;
+    const event =  await EventModel.find(filtrado).sort(sort).skip(skip).limit(limits);
+    const totalEvents = await EventModel.countDocuments(filtrado)
+    return {event, totalEvents};
 }
 
 const createEventDao = async (eventData) => {

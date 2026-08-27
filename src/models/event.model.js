@@ -15,9 +15,38 @@ const eventsSchema = new mongoose.Schema(
       default: "",
     },
 
-    starts_at: {
-      type: Date,
+    price: {
+      type: Number,
+      min: 0
+    },
+
+    capacity: {
+      type: Number,
       required: true,
+      min: 1
+    },
+
+    category: {
+      type: String,
+      enum: ['Electronica', 'Reggaeton', 'Cumbia', 'Rock'],
+      required: true
+    },
+
+    location: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    status: {
+      type: String,
+      enum: ['draft', 'published', 'cancelled', 'finished'],
+      default: 'draft'
+    },
+
+    date: {
+      type: Date,
+      required: true
     },
 
     organizer: {
@@ -27,8 +56,8 @@ const eventsSchema = new mongoose.Schema(
     }
 
   },
-{
-  timestamps: true,
+  {
+    timestamps: true,
     versionKey: false,
   }
 )

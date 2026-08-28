@@ -11,7 +11,7 @@ const getAllEventsService = async ({ status, category, location, dateFrom, dateT
         filtrado.category = category;
     };
     if (location) {
-        filtrado.location = location;
+        filtrado.location = new RegExp(location, 'i');
     };
     if (dateFrom) {
         filtrado.date = { ...filtrado.date, $gte: dateFrom };
@@ -55,8 +55,8 @@ const getEventByIdService = async (_id) => {
 }
 
 const updateService = async (_id, data, currentStatus) => {
-    if (currentStatus === 'cancelled') {
-        const error = new Error('No se puede editar un evento cancelado');
+    if (currentStatus === 'cancelled' || currentStatus === 'finished') {
+        const error = new Error('No se puede editar un evento cancelado o finalizado');
         error.status = 409;
         throw error;
     };
@@ -67,8 +67,8 @@ const updateService = async (_id, data, currentStatus) => {
 
 const updateStatusService = async (id, currentStatus, newStatus) => {
     if (currentStatus === 'cancelled' || currentStatus === 'finished') {
-        const error = new Error('No se puede modificar estado de un evento cancelado o finalizado');
-        error.status = 400;
+        const error = new Error('No se puede modificar el estado de un evento cancelado o finalizado');
+        error.status = 409;
         throw error;
     }
     const statusUpdate = await eventRepository.update(id, { status: newStatus })

@@ -361,9 +361,9 @@ En `PATCH /api/events/:id`, si el rol es `organizer`, se compara `event.organize
 
 - GET /api/events/:id — Obtener un evento por su id. Accesible para usuarios logueados y no logueados. Si el evento no existe, devuelve `res.status(404).json({ message: 'Evento no encontrado' })`.
 
-- PUT /api/events/:id — Editar campos de un evento existente. Permitido solo para el `organizer` dueño del evento o un `admin`. Si un usuario que no cumple esos requisitos intenta modificar el evento, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`.
+- PUT /api/events/:id — Editar campos de un evento existente. Permitido solo para el `organizer` dueño del evento o un `admin`. Si un usuario que no cumple esos requisitos intenta modificar el evento, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`. También puede devolver `res.status(409).json({ status: 'error', message: 'No se puede editar un evento cancelado o finalizado' })` cuando el evento está `cancelled`/`finished`.
 
-- PATCH /api/events/:id/status — Cambiar el estado de un evento. Permitido solo para el dueño del evento o un `admin`. Si no se cumplen esos requisitos, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`. Si se intenta asignar un valor de estado que no está en el `enum` de `EventModel`, devuelve `res.status(400).json({ message: 'Error de estado' })`.
+- PATCH /api/events/:id/status — Cambiar el estado de un evento. Permitido solo para el dueño del evento o un `admin`. Si no se cumplen esos requisitos, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`. Si se intenta asignar un valor de estado que no está en el `enum` de `EventModel`, devuelve `res.status(400).json({ message: 'Error de estado' })`. También puede devolver `res.status(409).json({ status: 'error', message: 'No se puede modificar el estado de un evento cancelado o finalizado' })` cuando el evento está `cancelled`/`finished`.
 
 #### Filtros disponibles en el listado (GET /api/events)
 
@@ -374,6 +374,9 @@ Se pasan como query params, todos opcionales y combinables entre sí:
 - `page`: número de página `(default: 1)`.
 - `limit`: cantidad de resultados por página `(default: 10)`.
 - `sort`: orden por fecha. `date` para ascendente, `-date` para descendente.
+- `location`: filtrado por ubicación del evento, sin distinguir mayúsculas/minúsculas.
+- `dateFrom`: filtrado por fecha igual o posterior a la indicada.
+- `dateTo`: filtrado por fecha igual o anterior a la indicada.
 
 La respuesta incluye `data`, `page`, `limit`, `total` y `totalPages`.
 
@@ -444,6 +447,7 @@ Another Night/
 │   │   └── ticket.model.js          
 │   ├── middlewares/
 │   │   ├── authMiddle.js
+│   │   ├── adminOrOwnerMiddle.js
 │   │   ├── roleAuth.js
 │   │   └── errorHandler.js          
 │   └── utils/

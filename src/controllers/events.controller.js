@@ -52,16 +52,6 @@ const updateEventController = async (req, res, next) => {
    const { id } = req.params;
 
    try {
-      const eventExist = await eventService.getEventByIdService(id);
-
-      if (!eventExist) {
-         return res.status(404).json({ status: 'error', message: 'Evento no encontrado' })
-      }
-
-      if (req.user.role === 'organizer' && req.user._id.toString() !== eventExist.organizer.toString()) {
-         return res.status(403).json({ status: 'error', message: 'Falta de permisos' });
-      }
-
       const eventUpdate = await eventService.updateService(id, { title, description, date, capacity, price, category, location }, req.event.status);
       res.status(200).json({ status: 'success', payload: eventUpdate });
    } catch (error) {

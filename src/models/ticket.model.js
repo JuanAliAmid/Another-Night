@@ -1,39 +1,40 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema(
   {
-    buyer: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: true
     },
-
     event: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Event',
-      required: true,
+      required: true
     },
-
     status: {
       type: String,
-      enum: ['active', 'expired'],
-      default: 'active',
+      enum: ['active', 'cancelled', 'pending', 'draft'],
+      default: 'active'
     },
-
-    expires_at: {
-      type: Date,
-      required: true,
-    },
-
-    amount: {
+    quantity: {
       type: Number,
-      required: true,
-    }
+      default: 1,
+      min: 1
+    },
+    code: {
+      type: String,
+      unique: true
+    },
+    cancelledAt: {
+      type: Date,
+      default: null
+    },
   },
   {
     timestamps: true,
     versionKey: false,
   }
-)
+);
 
-export default mongoose.model('Ticket', ticketSchema)
+export default mongoose.model('Ticket', ticketSchema);

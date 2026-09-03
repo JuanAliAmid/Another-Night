@@ -4,6 +4,8 @@ import roleAuth from "../middlewares/roleAuth.js";
 import authMiddle from "../middlewares/authMiddle.js";
 import adminOrOwnerMiddle from "../middlewares/adminOrOwnerMiddle.js";
 import eventsController from "../controllers/events.controller.js";
+import ticketsController from "../controllers/tickets.controller.js";
+
 
 const router = Router();
 
@@ -16,5 +18,9 @@ router.post('/', authMiddle.auth, roleAuth.rolesAuth('organizer', 'admin'), Even
 router.patch('/:id/status', authMiddle.auth, adminOrOwnerMiddle.adminOrOwner, EventsController.updateEventStatusController);
 
 router.put('/:id', authMiddle.auth, adminOrOwnerMiddle.adminOrOwner, eventsController.updateEventController);
+
+router.post('/:eid/tickets', authMiddle.auth, ticketsController.createTicketController);
+
+router.get('/:eid/tickets', authMiddle.auth, adminOrOwnerMiddle.adminOrOwner, ticketsController.viewEventTicketsController);
 
 export default router;

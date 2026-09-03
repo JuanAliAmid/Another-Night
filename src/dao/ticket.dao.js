@@ -1,8 +1,8 @@
 import ticketModel from "../models/ticket.model.js";
 
-const getAllTicketsDao = async () => {
-    const tickets = await ticketModel.find();
-    return tickets;
+const getTicketByIdDao = async (ticketId) => {
+    const ticket = await ticketModel.findOne({_id: ticketId});
+    return ticket;
 };
 
 const createTicketDao = async (ticketData) => {
@@ -26,7 +26,7 @@ const cancelledTicketsDao = async (_id, ticketData) => {
 };
 
 export default {
-    getAllTicketsDao,
+    getTicketByIdDao,
     cancelledTicketsDao,
     viewEventTicketsDao,
     getMyTicketDao,

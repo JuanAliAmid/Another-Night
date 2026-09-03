@@ -1,8 +1,8 @@
 import ticketDao from "../dao/ticket.dao.js";
 
-const getAllTickets = async () => {
-    const tickets = await ticketDao.getAllTicketsDao();
-    return tickets
+const getTicketById = async (ticketId) => {
+    const ticket = await ticketDao.getTicketByIdDao(ticketId);
+    return ticket;
 }
 
 const createTicket = async (ticketData) => {
@@ -16,7 +16,7 @@ const getMyTicket = async (_id) => {
 };
 
 const viewEventTickets= async (eventId) => {
-    const tickets = await ticketDao.viewEventTickestDao(eventId);
+    const tickets = await ticketDao.viewEventTicketsDao(eventId);
     return tickets;
 };
 
@@ -27,7 +27,7 @@ const cancelledTickets = async (_id, ticketData) => {
 
 
 export default {
-    getAllTickets,
+    getTicketById,
     cancelledTickets,
     viewEventTickets,
     getMyTicket,

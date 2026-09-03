@@ -391,6 +391,56 @@ La respuesta incluye `data`, `page`, `limit`, `total` y `totalPages`.
 - Un evento en estado `cancelled` o `finished` no puede volver a cambiar de estado.
 - La edición de campos (`PUT`) y el cambio de estado (`PATCH` .../`status`) son operaciones separadas, con rutas distintas.
 
+### API de Tickets / Inscripciones
+
+Permite que un usuario autenticado se inscriba a un evento publicado, gestionando cupos, evitando inscripciones duplicadas, permitiendo cancelaciones y notificando por email.
+
+#### Modelo `Ticket`
+
+Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos completos embebidos.
+
+| Campo         | Tipo     | Detalle                                              |
+|---------------|----------|-------------------------------------------------------|
+| `user`        | ObjectId | Referencia a `User`                                    |
+| `event`       | ObjectId | Referencia a `Event`                                   |
+| `status`      | String   | `confirmed` \| `pending` \| `cancelled` (default: `confirmed`) |
+| `quantity`    | Number   | Cantidad de entradas (mínimo 1)                        |
+| `code`        | String   | Código de reserva único, generado por el servidor al confirmar la inscripción |
+| `cancelledAt` | Date     | Se completa recién al cancelar (`null` hasta entonces) |
+
+#### Rutas disponibles
+
+| Método | Ruta                            | Acceso                              |
+|--------|----------------------------------|--------------------------------------|
+| POST   | `/api/events/:eid/tickets`       | Autenticado (cualquier rol)          |
+| GET    | `/api/events/:eid/tickets`       | `organizer` dueño del evento, o `admin` |
+| GET    | `/api/tickets/my-tickets`        | Autenticado (propios)                |
+| PATCH  | `/api/tickets/:tid/cancel`       | Dueño del ticket, o `admin`          |
+
+#### Detalle de rutas
+
+- **POST /api/events/:eid/tickets** — Crea una inscripción. Antes de crear el ticket, valida en el service (nunca en el controller): que el evento exista, que esté `published` (no `cancelled`/`finished`), que `quantity` sea un número mayor a 0, que haya cupos suficientes (capacidad del evento menos la suma de `quantity` de tickets `confirmed`, sin contar los `cancelled`) y que el usuario no tenga ya un ticket `confirmed` para ese mismo evento. Si todas las validaciones pasan, genera un `code` de reserva y envía un email de confirmación por Nodemailer.
+
+- **GET /api/events/:eid/tickets** — Lista los tickets de un evento puntual. Protegida con `adminOrOwnerMiddle`: solo puede consultarla el `organizer` dueño de ese evento, o un `admin`.
+
+- **GET /api/tickets/my-tickets** — Devuelve los tickets del usuario autenticado (`req.user`), sin exponer datos de otros usuarios.
+
+- **PATCH /api/tickets/:tid/cancel** — Cancela una inscripción propia. Valida en el service que el ticket exista, que pertenezca al usuario que pide la cancelación (o que sea `admin`) y que no esté ya cancelado. Cambia `status` a `cancelled` y completa `cancelledAt` con la fecha actual; el documento nunca se borra. Al quedar `cancelled`, ese cupo deja de contarse como ocupado y vuelve a estar disponible para nuevas inscripciones.
+
+#### Códigos de error
+
+| Código | Caso                                                                 |
+|--------|------------------------------------------------------------------------|
+| 400    | `quantity` inválida (no numérica o ≤ 0), o `:eid`/`:tid` con formato inválido |
+| 401    | No hay sesión válida                                                    |
+| 403    | Cancelar un ticket ajeno sin ser admin; consultar tickets de un evento ajeno sin ser admin |
+| 404    | Evento o ticket inexistente                                             |
+| 409    | Evento no publicado/cancelado/finalizado; sin cupos disponibles; ticket duplicado; ticket ya cancelado |
+
+#### Notificaciones por email
+
+Al confirmarse una inscripción, `nodeMailer.service.js` envía un email de confirmación vía Nodemailer (`config/nodeMailer.config.js`), usando las variables `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS` y `MAIL_FROM` del entorno — nunca credenciales hardcodeadas. En desarrollo se usa [Ethereal Email](https://ethereal.email/create), que no envía correos reales y devuelve una URL de previsualización del mensaje.
+
 ## Estructura de carpetas
 ```
 Another Night/

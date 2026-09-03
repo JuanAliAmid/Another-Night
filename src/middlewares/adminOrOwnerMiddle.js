@@ -2,9 +2,9 @@ import eventModel from "../models/event.model.js";
 
 const adminOrOwner = async (req, _res, next) => {
 
-    const {id} = req.params;
+    const { id, eid } = req.params;
 
-    const eventFound = await eventModel.findOne({_id: id});
+    const eventFound = await eventModel.findOne({ _id: id || eid});
 
     if (!eventFound) {
         const error = new Error('Evento no encontrado');

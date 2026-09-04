@@ -18,7 +18,7 @@ const createTicketController = async (req, res, next) => {
 
         const { ticket, event } = await ticketService.createTicketService({ user: _id, event: eid, quantity });
 
-        const sendMail = await nodeMailerService.sendTicketConfirmationEmail({ to: email, userName: first_name, eventTitle: event.title, ticketCode: ticket.code });
+        await nodeMailerService.sendTicketConfirmationEmail({ to: email, userName: first_name, eventTitle: event.title, ticketCode: ticket.code });
 
         return res.status(201).json({ status: 'success', payload: ticket });
     } catch (error) {
@@ -28,6 +28,7 @@ const createTicketController = async (req, res, next) => {
 
 const getMyTicketController = async (req, res, next) => {
     const { _id } = req.user;
+
     try {
 
         const ticket = await ticketService.getMyTicketService(_id);
@@ -44,6 +45,7 @@ const getMyTicketController = async (req, res, next) => {
 
 const viewEventTicketsController = async (req, res, next) => {
     const { _id: eventId } = req.event;
+
     try {
 
         const tickets = await ticketService.viewEventTicketsService(eventId);
@@ -61,6 +63,7 @@ const viewEventTicketsController = async (req, res, next) => {
 const cancelledTicketsController = async (req, res, next) => {
     const { tid } = req.params;
     const { _id, role } = req.user;
+
     try {
 
         const ticketCancelled = await ticketService.cancelledTicketsService(tid, _id, role, { status: 'cancelled', cancelledAt: new Date() });

@@ -467,6 +467,7 @@ Another Night/
 │   ├── config/
 │   │   ├── database.js
 │   │   ├── passport.config.js
+│   │   ├── nodeMailer.config.js
 │   │   └── env.js
 │   ├── routes/
 │   │   ├── events.routes.js
@@ -482,6 +483,7 @@ Another Night/
 │   ├── services/
 │   │   ├── event.service.js
 │   │   ├── ticket.service.js
+│   │   ├── nodeMailer.service.js
 │   │   └── user.service.js
 │   ├── repositories/
 │   │   ├── event.repository.js

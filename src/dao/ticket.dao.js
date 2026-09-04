@@ -11,7 +11,7 @@ const createTicketDao = async (ticketData) => {
 };
 
 const getMyTicketDao = async (_id) => {
-    const ticketFound = await ticketModel.find({ user: _id });
+    const ticketFound = await ticketModel.find({ user: _id }).populate('event', 'title date location');
     return ticketFound;
 };
 

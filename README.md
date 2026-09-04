@@ -423,7 +423,7 @@ Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos compl
 
 - **GET /api/events/:eid/tickets** — Lista los tickets de un evento puntual. Protegida con `adminOrOwnerMiddle`: solo puede consultarla el `organizer` dueño de ese evento, o un `admin`.
 
-- **GET /api/tickets/my-tickets** — Devuelve los tickets del usuario autenticado (`req.user`), sin exponer datos de otros usuarios.
+- **GET /api/tickets/my-tickets** — Devuelve los tickets del usuario autenticado (`req.user`), incluyendo los datos del evento asociado (title, date, location) mediante `populate`, sin exponer datos de otros usuarios.
 
 - **PATCH /api/tickets/:tid/cancel** — Cancela una inscripción propia. Valida en el service que el ticket exista, que pertenezca al usuario que pide la cancelación (o que sea `admin`) y que no esté ya cancelado. Cambia `status` a `cancelled` y completa `cancelledAt` con la fecha actual; el documento nunca se borra. Al quedar `cancelled`, ese cupo deja de contarse como ocupado y vuelve a estar disponible para nuevas inscripciones.
 

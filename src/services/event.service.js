@@ -23,9 +23,9 @@ const getAllEventsService = async ({ status, category, location, dateFrom, dateT
     const skip = (pages - 1) * limits;
 
     const { event, totalEvents } = await eventRepository.getAllEvents({ filtrado, limits, skip, sort });
-    const totalPages = Math.ceil(totalEvents / limits)
+    const totalPages = Math.ceil(totalEvents / limits);
     return { event, pages, limits, totalEvents, totalPages };
-}
+};
 
 const createEventService = async (eventData) => {
     const date = new Date(eventData.date)
@@ -47,12 +47,12 @@ const createEventService = async (eventData) => {
 
     const newEvent = await eventRepository.createEvent(eventData);
     return newEvent;
-}
+};
 
 const getEventByIdService = async (_id) => {
     const eventEncontrado = await eventRepository.getEventById(_id);
     return eventEncontrado;
-}
+};
 
 const updateService = async (_id, data, currentStatus) => {
     if (currentStatus === 'cancelled' || currentStatus === 'finished') {
@@ -63,7 +63,7 @@ const updateService = async (_id, data, currentStatus) => {
 
     const eventUpdate = await eventRepository.update(_id, data);
     return eventUpdate;
-}
+};
 
 const updateStatusService = async (id, currentStatus, newStatus) => {
     if (currentStatus === 'cancelled' || currentStatus === 'finished') {
@@ -71,9 +71,9 @@ const updateStatusService = async (id, currentStatus, newStatus) => {
         error.status = 409;
         throw error;
     }
-    const statusUpdate = await eventRepository.update(id, { status: newStatus })
+    const statusUpdate = await eventRepository.update(id, { status: newStatus });
     return statusUpdate;
-}
+};
 
 export default {
     getAllEventsService,
@@ -81,4 +81,4 @@ export default {
     getEventByIdService,
     updateService,
     updateStatusService
-}
+};

@@ -441,6 +441,34 @@ Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos compl
 
 Al confirmarse una inscripción, `nodeMailer.service.js` envía un email de confirmación vía Nodemailer (`config/nodeMailer.config.js`), usando las variables `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS` y `MAIL_FROM` del entorno — nunca credenciales hardcodeadas. En desarrollo se usa [Ethereal Email](https://ethereal.email/create), que no envía correos reales y devuelve una URL de previsualización del mensaje.
 
+## Arquitectura en capas
+
+La API está organizada en capas con responsabilidades separadas. Cada entidad principal (`User`, `Event`, `Ticket`) tiene su propio DAO, Repository y Service. El flujo de una request siempre respeta este orden:
+
+```
+Request → Router → Middleware (auth/permisos) → Controller → Service → Repository → DAO → Modelo (Mongoose)
+```
+
+Ninguna capa se salta a la siguiente: un Controller nunca llama a un Repository o DAO directamente, y un Service nunca importa un modelo de Mongoose.
+
+### DAO (`src/dao/`)
+Es la única capa que importa y usa los modelos de Mongoose directamente. Expone operaciones puras de acceso a datos (`find`, `findOne`, `findById`, `create`, `update`), sin ninguna regla de negocio. Ejemplos: `users.dao.js`, `event.dao.js`, `ticket.dao.js`.
+
+### Repository (`src/repositories/`)
+Capa intermedia entre el Service y el DAO. No importa modelos de Mongoose, solo consume el DAO correspondiente. Traduce operaciones genéricas del DAO en métodos orientados al dominio (`findByEmail`, `getEventById`, `getTicketById`). Es el único punto de entrada permitido al DAO.
+
+### Service (`src/services/`)
+Concentra toda la lógica de negocio de la aplicación: validaciones de datos, control de cupos y estados de eventos, verificación de duplicados (email ya registrado, inscripción repetida), permisos sobre recursos propios, hasheo de contraseñas y disparo de notificaciones por email. Consume repositories, nunca DAOs ni modelos. Los errores de negocio se lanzan acá con `error.status` seteado (400, 401, 403, 404, 409), para que el middleware de errores los traduzca al código HTTP correcto.
+
+### Controller (`src/controllers/`)
+Solo coordina la request y la response: extrae datos del `body`/`params`/`query`, llama al Service correspondiente, aplica el DTO si la respuesta lo requiere, y devuelve el resultado. No calcula cupos, no valida estados ni resuelve ninguna regla de negocio — toda esa lógica vive en el Service.
+
+### DTO (`src/utils/user.dto.js`)
+Filtra los datos que efectivamente se envían al cliente antes de la respuesta final, como capa extra de seguridad (además del `.select()` aplicado en los DAO/populate de origen). `userDto` y `ticketDto` remueven el campo `password` — incluyendo el de un `user` embebido por `populate` dentro de un ticket. Se aplica en el Controller, justo antes de armar la respuesta.
+
+### Middlewares (`src/middlewares/`)
+`authMiddle` valida la sesión (JWT), `adminOrOwnerMiddle` valida permisos sobre un recurso (consultando el Service correspondiente, no el modelo directamente), `roleAuth` valida rol, y `errorHandler` centraliza el formato de todas las respuestas de error de la API.
+
 ## Estructura de carpetas
 ```
 Another Night/
@@ -505,7 +533,7 @@ Another Night/
 │   └── utils/
 │       ├── hash.js
 │       ├── jwt.js
-│       └── user.dto.js
+│       └── res.dto.js
 ├── .env.example              
 ├── .gitignore                
 ├── package-lock.json               

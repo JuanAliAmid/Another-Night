@@ -15,7 +15,7 @@ const createTicketService = async (ticketData) => {
         const error = new Error('Evento inexistente');
         error.status = 404;
         throw error;
-    }
+    };
     if (event.status !== 'published') {
         const error = new Error('No se puede crear un ticket con un evento cancelado o finalizado');
         error.status = 409;
@@ -25,7 +25,7 @@ const createTicketService = async (ticketData) => {
         const error = new Error('Número de entradas inválido');
         error.status = 400;
         throw error;
-    }
+    };
 
     const ticketCount = await ticketRepository.viewEventTickets(ticketData.event);
     const actives = ticketCount.filter(tick => tick.status === 'confirmed');
@@ -89,4 +89,4 @@ export default {
     getMyTicketService,
     viewEventTicketsService,
     cancelledTicketsService
-}
+};

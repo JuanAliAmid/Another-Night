@@ -1,5 +1,6 @@
 import ticketService from '../services/ticket.service.js';
 import nodeMailerService from '../services/nodeMailer.service.js';
+import resDto from '../utils/res.dto.js';
 
 const createTicketController = async (req, res, next) => {
     const { _id, first_name, email } = req.user;
@@ -9,11 +10,17 @@ const createTicketController = async (req, res, next) => {
     try {
 
         if (!_id) {
-            return res.status(404).json({ status: 'error', message: 'Usuario inexistente' });
+            const error = new Error('Usuario inexistente');
+            error.status = 404;
+            throw error;
         } else if (!eid) {
-            return res.status(404).json({ status: 'error', message: 'Evento inexistente' })
+            const error = new Error('Evento inexistente');
+            error.status = 404;
+            throw error;
         } else if (!quantity) {
-            return res.status(404).json({ status: 'error', message: 'Debe ingresar cantidad' })
+            const error = new Error('Debe ingresar cantidad');
+            error.status = 404;
+            throw error;
         };
 
         const { ticket, event } = await ticketService.createTicketService({ user: _id, event: eid, quantity });
@@ -34,7 +41,9 @@ const getMyTicketController = async (req, res, next) => {
         const ticket = await ticketService.getMyTicketService(_id);
 
         if (!ticket || ticket.length === 0) {
-            return res.status(404).json({ status: 'error', message: 'No se encontró el ticket buscado' });
+            const error = new Error('No se encontró el ticket buscado');
+            error.status = 404;
+            throw error;
         };
 
         return res.status(200).json({ status: 'success', payload: ticket });
@@ -51,10 +60,14 @@ const viewEventTicketsController = async (req, res, next) => {
         const tickets = await ticketService.viewEventTicketsService(eventId);
 
         if (!tickets || tickets.length === 0) {
-            return res.status(404).json({ status: 'error', message: 'No hay tickets registrados en este evento' });
+            const error = new Error('No hay tickets registrados en este evento');
+            error.status = 404;
+            throw error;
         }
 
-        return res.status(200).json({ status: 'success', payload: tickets });
+        const restoTickets = tickets.map(ticket => resDto.ticketDto(ticket.toObject()));
+
+        return res.status(200).json({ status: 'success', payload: restoTickets });
     } catch (error) {
         return next(error);
     }
@@ -69,7 +82,9 @@ const cancelledTicketsController = async (req, res, next) => {
         const { ticketCancelled, event } = await ticketService.cancelledTicketsService(tid, _id, role, { status: 'cancelled', cancelledAt: new Date() });
 
         if (!ticketCancelled) {
-            return res.status(404).json({ status: 'error', message: 'Ticket inexistente' });
+            const error = new Error('Ticket inexistente');
+            error.status = 404;
+            throw error;
         };
 
         await nodeMailerService.sendTicketCancellationEmail({ to: email, userName: first_name, eventTitle: event.title, ticketCode: ticketCancelled.code });

@@ -6,13 +6,13 @@ import './config/passport.config.js';
 import passport from 'passport';
 
 
-const app = express()
+const app = express();
 
-app.use(cookieParser())
+app.use(cookieParser());
 
-app.use(express.json())
+app.use(express.json());
 
-app.use(passport.initialize())
+app.use(passport.initialize());
 
 app.use('/api', apiRouter);
 
@@ -20,7 +20,7 @@ app.use((_request, response) => {
     response.status(404).json({ status: 'error', message: 'Ruta inexistente' });
 })
 
-app.use(errorHandler.error)
+app.use(errorHandler.error);
 
 export default app;
 

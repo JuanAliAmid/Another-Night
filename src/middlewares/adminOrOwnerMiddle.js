@@ -1,10 +1,12 @@
-import eventModel from "../models/event.model.js";
+import eventService from "../services/event.service.js";
 
 const adminOrOwner = async (req, _res, next) => {
 
     const { id, eid } = req.params;
 
-    const eventFound = await eventModel.findOne({ _id: id || eid});
+    const _id = id || eid;
+
+    const eventFound = await eventService.getEventByIdService(_id);
 
     if (!eventFound) {
         const error = new Error('Evento no encontrado');

@@ -22,7 +22,9 @@ const getEventByIdController = async (req, res, next) => {
       const event = await eventService.getEventByIdService(id);
 
       if (!event) {
-         return res.status(404).json({ message: 'Evento no encontrado' });
+         const error = new Error ('Evento no encontrado');
+         error.status = 404;
+         throw error;
       }
 
       return res.status(200).json({ status: 'success', payload: event });
@@ -67,7 +69,9 @@ const updateEventStatusController = async (req, res, next) => {
    try {
 
       if (status !== 'draft' && status !== 'published' && status !== 'cancelled' && status !== 'finished') {
-         return res.status(400).json({ message: 'Error de estado' });
+         const error = new Error ('Error de estado');
+         error.status = 400;
+         throw error;
       }
 
       const eventUpdate = await eventService.updateStatusService(req.event.id, req.event.status, status);

@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer'
 
 // enviar confirmacion de tickets
 const sendTicketConfirmationEmail = async ({ to, userName, eventTitle, ticketCode }) => {
+
     const sendEmail = await transporter.sendMail({
         from: process.env.MAIL_FROM,
         to,
@@ -13,8 +14,7 @@ const sendTicketConfirmationEmail = async ({ to, userName, eventTitle, ticketCod
       <p>Código de reserva: <strong>${ticketCode}</strong></p>
     `
     });
-    const urlEmail = nodemailer.getTestMessageUrl(sendEmail);
-    console.log(urlEmail)
+
     return sendEmail;
 };
 
@@ -37,4 +37,4 @@ const sendTicketCancellationEmail = async ({ to, userName, eventTitle, ticketCod
 export default {
     sendTicketCancellationEmail,
     sendTicketConfirmationEmail
-}
+};

@@ -6,7 +6,7 @@ import usersRouter from './users.routes.js';
 
 const router = Router();
 
-router.get('/health', (request, response) => {
+router.get('/health', (_request, response) => {
     response.status(200).json({ status: "ok", message: "Servidor activo" });
 })
 router.use('/users', usersRouter);

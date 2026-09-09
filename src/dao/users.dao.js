@@ -1,7 +1,7 @@
 import userModel from "../models/user.model.js";
 
 const getAllUsersDao = async () => {
-    const users = await userModel.find();
+    const users = await userModel.find().select('-password');
     return users;
 }
 

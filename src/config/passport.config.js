@@ -1,9 +1,8 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import { createHash, isValidPassword } from '../utils/hash.js';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { env } from './env.js';
-import usersDao from '../dao/users.dao.js';
+import userService from '../services/user.service.js';
 
 const cookieExtractor = req => {
     let token = null
@@ -21,10 +20,7 @@ const jwtOptions = { jwtFromRequest: bearerOrCookie, secretOrKey: env.jwt_secret
 
 const jwtVerify = async (payload, done) => {
     try {
-        const user = await usersDao.findUserById(payload.id);
-        if (!user) {
-            return done(null, false, { message: "Usuario no encontrado" });
-        }
+        const user = await userService.findUserById(payload.id);
         return done(null, user)
     } catch (error) {
         return done(error)
@@ -43,47 +39,14 @@ passport.use(
         },
         async (req, email, password, done) => {
             try {
-                const { first_name, last_name } = req.body
-                password = String(password);
-
-                if (!first_name || !last_name || !email || !password) {
-                    return done(null, false, {
-                        message: 'Todos los campos son obligatorios'
-                    })
-                }
-
-                if (password.length <= 6 || password === "12345" || password === "12345678910" || password === "aeiou") {
-                    return done(null, false, ({ message: "Formato de contraseña inválido" }))
-                }
-
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                if (!emailRegex.test(email)) {
-                    return done(null, false, ({ message: 'Formato de email incorrecto' }))
-                }
-
-                const normalizedEmail = email.toLowerCase().trim()
-
-                const userExists = await usersDao.findUserByEmail(normalizedEmail)
-
-                if (userExists) {
-                    return done(null, false, {
-                        message: 'Ya existe un usuario registrado con ese email'
-                    })
-                }
-
-                const hashedPassword = await createHash(password)
-
-                const newUser = await usersDao.createUser({ first_name, last_name, password: hashedPassword, email: normalizedEmail })
-
-                return done(null, newUser)
+                const newUser = await userService.registerUserService(req.body);
+                return done(null, newUser);
             } catch (error) {
-                return done(error)
-            }
+                return done(error);
+            };
         }
     )
-)
-
+);
 
 //login
 passport.use(
@@ -95,32 +58,8 @@ passport.use(
         async (email, password, done) => {
 
             try {
-                if (!email || !password) {
-                    return done(null, false, ({ status: "error", message: 'Complete los campos "email" y "password"' }))
-                }
-                const normalizedEmail = email.toLowerCase().trim()
-
-                const user = await usersDao.findUserByEmail(normalizedEmail)
-
-                if (!user) {
-                    return done(null, false, {
-                        message: 'Credenciales inválidas'
-                    })
-                }
-
-                const validPassword = await isValidPassword(
-                    password,
-                    user.password
-                )
-
-                if (!validPassword) {
-                    return done(null, false, {
-                        message: 'Credenciales inválidas'
-                    })
-                }
-
+                const user = await userService.loginUserService({email, password});
                 return done(null, user)
-
             } catch (error) {
                 return done(error)
             }
@@ -131,4 +70,3 @@ passport.use(
 //current / logout
 passport.use("jwt", new JwtStrategy(jwtOptions, jwtVerify));
 
-//futuras estaregias externas ↓↓

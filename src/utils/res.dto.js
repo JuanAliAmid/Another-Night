@@ -3,8 +3,9 @@ const userDto = (user) => {
     return resto;
 };
 const ticketDto = (ticket) => {
-    const { password, ...resto } = ticket;
-    return resto;
+    const { user, ...Ticket } = ticket;
+    const { password, ...restoUser } = user || {};
+    return { user: restoUser, ...Ticket };
 };
 const eventDto = (event) => {
     const { organizer, ...resto } = event;

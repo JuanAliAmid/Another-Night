@@ -21,7 +21,7 @@ const sendTicketConfirmationEmail = async ({ to, userName, eventTitle, ticketCod
 
 //Enviar email de cancelación
 const sendTicketCancellationEmail = async ({ to, userName, eventTitle, ticketCode }) => {
-    await transporter.sendMail({
+    const sendEmail = await transporter.sendMail({
         from: process.env.MAIL_FROM,
         to,
         subject: 'Cancelación de inscripción',
@@ -31,6 +31,7 @@ const sendTicketCancellationEmail = async ({ to, userName, eventTitle, ticketCod
       <p>Código de reserva: <strong>${ticketCode}</strong></p>
     `
     });
+    return sendEmail;
 };
 
 export default {

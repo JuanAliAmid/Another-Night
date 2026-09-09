@@ -16,7 +16,7 @@ const getMyTicketDao = async (_id) => {
 };
 
 const viewEventTicketsDao = async (eventId) => {
-    const tickets = await ticketModel.find({ event: eventId });
+    const tickets = await ticketModel.find({ event: eventId }).populate('user', 'first_name email role');
     return tickets;
 };
 

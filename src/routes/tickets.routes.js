@@ -1,5 +1,4 @@
 import { Router } from "express";
-import TicketsController from '../controllers/tickets.controller.js';
 import authMiddle from "../middlewares/authMiddle.js";
 import ticketsController from "../controllers/tickets.controller.js";
 

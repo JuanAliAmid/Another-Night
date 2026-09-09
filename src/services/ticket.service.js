@@ -3,6 +3,14 @@ import eventService from "./event.service.js";
 
 const createTicketService = async (ticketData) => {
     const event = await eventService.getEventByIdService(ticketData.event);
+
+    const date = new Date(event.date);
+    if (date < new Date()) {
+        const error = new Error('No puede inscribir a un evento con una fecha pasada');
+        error.status = 400;
+        throw error;
+    };
+
     if (!event) {
         const error = new Error('Evento inexistente');
         error.status = 404;
@@ -14,7 +22,7 @@ const createTicketService = async (ticketData) => {
         throw error;
     };
     if (ticketData.quantity <= 0 || !Number(ticketData.quantity)) {
-        const error = new Error('Número de entradas incorrecto');
+        const error = new Error('Número de entradas inválido');
         error.status = 400;
         throw error;
     }

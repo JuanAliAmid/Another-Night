@@ -9,7 +9,7 @@ const SessionsStatus = async (_request, response, next) => {
 };
 
 //----------------------------LOGOUT----------------------------
-const SessionLogout = (request, response) => {
+const SessionLogout = (_request, response) => {
     response.clearCookie('currentUser');
     response.setHeader('Content-Type', 'application/json');
     return response.status(200).json({ status: 'success', payload: 'Logout exitoso' });

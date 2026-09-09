@@ -62,15 +62,18 @@ const viewEventTicketsController = async (req, res, next) => {
 
 const cancelledTicketsController = async (req, res, next) => {
     const { tid } = req.params;
-    const { _id, role } = req.user;
+    const { _id, role, first_name, email } = req.user;
 
     try {
 
-        const ticketCancelled = await ticketService.cancelledTicketsService(tid, _id, role, { status: 'cancelled', cancelledAt: new Date() });
+        const { ticketCancelled, event } = await ticketService.cancelledTicketsService(tid, _id, role, { status: 'cancelled', cancelledAt: new Date() });
 
         if (!ticketCancelled) {
             return res.status(404).json({ status: 'error', message: 'Ticket inexistente' });
         };
+
+        await nodeMailerService.sendTicketCancellationEmail({ to: email, userName: first_name, eventTitle: event.title, ticketCode: ticketCancelled.code });
+
 
         return res.status(200).json({ status: 'success', payload: ticketCancelled });
     } catch (error) {

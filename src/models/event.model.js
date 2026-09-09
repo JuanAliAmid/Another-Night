@@ -52,7 +52,7 @@ const eventsSchema = new mongoose.Schema(
 
     organizer: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', //para obtener los datos del oreganizer a futuro si es necesario...
+      ref: 'User', //para obtener los datos del organizer a futuro si es necesario...
       required: true
     }
 

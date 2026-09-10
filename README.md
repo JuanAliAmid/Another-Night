@@ -473,6 +473,12 @@ Filtra los datos que efectivamente se envían al cliente antes de la respuesta f
 
 El proyecto incluye un test de integración (`src/tests/flow.test.js`) que corre contra una instancia de MongoDB en memoria (`mongodb-memory-server`), sin tocar la base de datos real.
 
+### Herramientas
+
+- `node:test` (test runner nativo de Node)
+- `supertest` (requests HTTP simuladas)
+- `mongodb-memory-server` (MongoDB en memoria para tests)
+
 ### Cómo correrlo
 
 ```bash

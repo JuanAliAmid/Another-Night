@@ -20,7 +20,7 @@ const sessionLogout = (req, res, next) => {
             const error = new Error('No autenticado');
             error.status = 401;
             return next(error);
-        }
+        };
 
         req.user = user;
 
@@ -38,7 +38,7 @@ const sessionsRegister = async (req, res, next) => {
 
         if (err) {
             return next(err);
-        }
+        };
 
         const resto = resDto.userDto(user.toObject());
 
@@ -51,7 +51,7 @@ const sessionsLogin = async (req, res, next) => {
 
         if (err) {
             return next(err);
-        }
+        };
 
         const { _id: id, email: email_user, role } = user;
 

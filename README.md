@@ -471,7 +471,7 @@ Filtra los datos que efectivamente se envían al cliente antes de la respuesta f
 
 ## Testing
 
-El proyecto incluye un test de integración (`src/tests/flow.test.js`) que corre contra una instancia de MongoDB en memoria (`mongodb-memory-server`), sin tocar la base de datos real.
+El proyecto incluye un test de integración (`src/tests/automated.test.js`) que corre contra una instancia de MongoDB en memoria (`mongodb-memory-server`), sin tocar la base de datos real.
 
 ### Herramientas
 
@@ -487,7 +487,7 @@ npm test
 
 Internamente ejecuta:
 ```bash
-node --test src/tests/flow.test.js
+node --test src/tests/automated.test.js
 ```
 
 **Nota:** la primera corrida descarga el binario de MongoDB que usa `mongodb-memory-server` (requiere conexión a internet). Las corridas siguientes usan el binario cacheado y son más rápidas.
@@ -549,6 +549,8 @@ Another Night/
 │   │   ├── ticket.service.js
 │   │   ├── nodeMailer.service.js
 │   │   └── user.service.js
+│   ├── tests/
+│   │   └── automated.test.js  
 │   ├── repositories/
 │   │   ├── event.repository.js
 │   │   ├── ticket.repository.js

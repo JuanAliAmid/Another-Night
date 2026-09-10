@@ -65,6 +65,7 @@ const cancelledTicketsService = async (ticketId, userId, role, ticketData) => {
 
     const ticket = await ticketRepository.getTicketById(ticketId);
 
+
     if (!ticket) {
         const error = new Error('Ticket inexistente');
         error.status = 404;
@@ -79,9 +80,10 @@ const cancelledTicketsService = async (ticketId, userId, role, ticketData) => {
         throw error;
     };
 
+    const event = await eventService.getEventByIdService(ticket.event);
 
     const ticketCancelled = await ticketRepository.cancelledTickets(ticketId, ticketData);
-    return ticketCancelled;
+    return { ticketCancelled, event };
 };
 
 export default {

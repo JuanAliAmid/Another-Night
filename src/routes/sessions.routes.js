@@ -1,7 +1,7 @@
 import { Router } from "express";
 import SessionsController from "../controllers/sessions.controller.js";
 import passport from "passport";
-import resDto from "../utils/user.dto.js";
+import resDto from "../utils/res.dto.js";
 import { env } from "../config/env.js";
 import jwtLoginVerify from '../utils/jwt.js';
 import authMiddle from "../middlewares/authMiddle.js";
@@ -39,7 +39,7 @@ router.post('/register', (req, res, next) => {
             return next(err);
         }
 
-        const resto = resDto(user.toObject());
+        const resto = resDto.userDto(user.toObject());
 
         return res.status(201).json({ status: "success", payload: resto });
     })(req, res, next);

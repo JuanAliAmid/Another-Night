@@ -46,7 +46,9 @@ const getMyTicketController = async (req, res, next) => {
             throw error;
         };
 
-        return res.status(200).json({ status: 'success', payload: resDto.ticketDto(ticket.toObject()) });
+        const ticketsDto = ticket.map(b => resDto.ticketDto(b.toObject()));
+
+        return res.status(200).json({ status: 'success', payload: ticketsDto });
     } catch (error) {
         return next(error);
     }

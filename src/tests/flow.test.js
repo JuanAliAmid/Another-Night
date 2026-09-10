@@ -1,6 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import '../config/env.js'; // fuerza dotenv.config() antes de que se evalúe app.js (y nodeMailer.config.js)
+import '../config/env.js'; // este import fuerza a que env.js corra antes, así cuando app.js se ejecuta ya están cargadas las variables de entorno y no vacías 
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -18,8 +18,7 @@ let ticketId;
 let mongod;
 
 before(async () => {
-    // Levanta un mongo temporal en RAM para no tocar mi base de datos real 
-    mongod = await MongoMemoryServer.create();
+    mongod = await MongoMemoryServer.create(); // Levanta un mongo temporal en RAM para no tocar mi base de datos real 
     await mongoose.connect(mongod.getUri());
 });
 
@@ -73,11 +72,11 @@ test('POST /api/events sin rol organizer/admin devuelve 403', async () => {
 });
 
 test('flujo completo: promover a organizer → crear evento → publicar → inscribirse → cancelar', async () => {
-    // Cambio el rol de usuario a organizer directo en la db (no hay endpoint público para esto)
-    await userModel.updateOne({ email: testEmail }, { role: 'organizer' });
+    
+    await userModel.updateOne({ email: testEmail }, { role: 'organizer' }); // Cambio el rol de usuario a organizer directo en la db (no hay endpoint público para esto)
 
-    // Volvemos a loguear para que el JWT tenga el rol actualizado
-    const loginRes = await request(app)
+   
+    const loginRes = await request(app) // Volvemos a loguear para que el JWT tenga el rol actualizado
         .post('/api/sessions/login')
         .send({ email: testEmail, password: testPassword });
 

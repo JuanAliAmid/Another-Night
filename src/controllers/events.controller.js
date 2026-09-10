@@ -1,4 +1,5 @@
 import eventService from '../services/event.service.js';
+import resDto from '../utils/res.dto.js';
 
 const getaAllEventsController = async (req, res, next) => {
 
@@ -7,7 +8,8 @@ const getaAllEventsController = async (req, res, next) => {
    const limits = Number(limit);
    try {
       const events = await eventService.getAllEventsService({ status, category, location, dateFrom, dateTo, pages, limits, sort });
-      return res.status(200).json({ status: 'success', data: events.event, page: events.pages, limit: events.limits, total: events.totalEvents, totalPages: events.totalPages });
+      const eventsDto = events.event.map(event => resDto.eventDto(event.toObject()))
+      return res.status(200).json({ status: 'success', data: eventsDto, page: events.pages, limit: events.limits, total: events.totalEvents, totalPages: events.totalPages });
    } catch (error) {
       return next(error);
    };
@@ -22,12 +24,12 @@ const getEventByIdController = async (req, res, next) => {
       const event = await eventService.getEventByIdService(id);
 
       if (!event) {
-         const error = new Error ('Evento no encontrado');
+         const error = new Error('Evento no encontrado');
          error.status = 404;
          throw error;
       }
 
-      return res.status(200).json({ status: 'success', payload: event });
+      return res.status(200).json({ status: 'success', payload: resDto.eventDto(event.toObject()) });
    } catch (error) {
       return next(error);
    };
@@ -41,7 +43,7 @@ const createEventController = async (req, res, next) => {
    try {
       const eventData = { title, description, date, organizer, capacity, price, category, location };
       const newEvent = await eventService.createEventService(eventData);
-      return res.status(201).json({ status: "success", payload: newEvent });
+      return res.status(201).json({ status: "success", payload: resDto.eventDto(newEvent.toObject()) });
    } catch (error) {
       next(error);
    };
@@ -55,7 +57,7 @@ const updateEventController = async (req, res, next) => {
 
    try {
       const eventUpdate = await eventService.updateService(id, { title, description, date, capacity, price, category, location }, req.event.status);
-      res.status(200).json({ status: 'success', payload: eventUpdate });
+      res.status(200).json({ status: 'success', payload: resDto.eventDto(eventUpdate.toObject()) });
    } catch (error) {
       next(error);
    };
@@ -69,13 +71,13 @@ const updateEventStatusController = async (req, res, next) => {
    try {
 
       if (status !== 'draft' && status !== 'published' && status !== 'cancelled' && status !== 'finished') {
-         const error = new Error ('Error de estado');
+         const error = new Error('Error de estado');
          error.status = 400;
          throw error;
       }
 
       const eventUpdate = await eventService.updateStatusService(req.event.id, req.event.status, status);
-      res.status(200).json({ status: 'success', payload: eventUpdate });
+      res.status(200).json({ status: 'success', payload: resDto.eventDto(eventUpdate.toObject()) });
    } catch (error) {
       next(error);
    }

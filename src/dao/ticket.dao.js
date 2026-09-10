@@ -21,7 +21,7 @@ const viewEventTicketsDao = async (eventId) => {
 };
 
 const cancelledTicketsDao = async (_id, ticketData) => {
-    const ticketCancelled = await ticketModel.findByIdAndUpdate(_id, ticketData, { new: true });
+    const ticketCancelled = await ticketModel.findByIdAndUpdate(_id, ticketData, { returnDocument: 'after' });
     return ticketCancelled;
 };
 

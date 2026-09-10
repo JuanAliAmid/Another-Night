@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node --test src/tests"
+    "test": "node --test src/tests/flow.test.js"
   },
   "keywords": [],
   "author": "Ali Juan Amid",

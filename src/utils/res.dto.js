@@ -4,7 +4,10 @@ const userDto = (user) => {
 };
 const ticketDto = (ticket) => {
     const { user, ...Ticket } = ticket;
-    const { password, ...restoUser } = user || {};
+    if (!user || user.email === undefined) {
+        return { user, ...Ticket };  // lo dejo tal cual, sin tocar nada
+    }
+    const { password, ...restoUser } = user;
     return { user: restoUser, ...Ticket };
 };
 const eventDto = (event) => {

@@ -469,6 +469,36 @@ Filtra los datos que efectivamente se envían al cliente antes de la respuesta f
 ### Middlewares (`src/middlewares/`)
 `authMiddle` valida la sesión (JWT), `adminOrOwnerMiddle` valida permisos sobre un recurso (consultando el Service correspondiente, no el modelo directamente), `roleAuth` valida rol, y `errorHandler` centraliza el formato de todas las respuestas de error de la API.
 
+## Testing
+
+El proyecto incluye un test de integración (`src/tests/flow.test.js`) que corre contra una instancia de MongoDB en memoria (`mongodb-memory-server`), sin tocar la base de datos real.
+
+### Cómo correrlo
+
+```bash
+npm test
+```
+
+Internamente ejecuta:
+```bash
+node --test src/tests/flow.test.js
+```
+
+**Nota:** la primera corrida descarga el binario de MongoDB que usa `mongodb-memory-server` (requiere conexión a internet). Las corridas siguientes usan el binario cacheado y son más rápidas.
+
+### Qué cubre
+
+| Test | Verifica |
+|------|----------|
+| `POST /api/sessions/register` | Crea el usuario y la respuesta no expone `password` |
+| `POST /api/sessions/login` | Login correcto y seteo de cookie de sesión |
+| `GET /api/sessions/current` (con cookie) | Devuelve el usuario logueado sin `password` |
+| `GET /api/sessions/current` (sin cookie) | Devuelve 401 |
+| `POST /api/events` (sin rol organizer/admin) | Devuelve 403 |
+| Flujo completo | Promover a organizer → crear evento → publicar (cambiar `status`) → inscribirse → evitar inscripción duplicada (409) → ver inscriptos sin exponer `password` del usuario populado → cancelar ticket → evitar cancelación duplicada (409) |
+
+El flujo completo cubre de punta a punta las reglas de negocio principales: control de roles, control de cupos, inscripción única por usuario, transiciones de estado válidas en tickets, y que el modelo `User` nunca se filtra con `password` incluido — ni en respuestas directas ni en documentos populados.
+
 ## Estructura de carpetas
 ```
 Another Night/

@@ -73,13 +73,14 @@ test('POST /api/events sin rol organizer/admin devuelve 403', async () => {
 });
 
 test('flujo completo: promover a organizer → crear evento → publicar → inscribirse → cancelar', async () => {
-    // Cambio el rol de usuario a organizer directo en la DB (no hay endpoint público para esto)
+    // Cambio el rol de usuario a organizer directo en la db (no hay endpoint público para esto)
     await userModel.updateOne({ email: testEmail }, { role: 'organizer' });
 
     // Volvemos a loguear para que el JWT tenga el rol actualizado
     const loginRes = await request(app)
         .post('/api/sessions/login')
         .send({ email: testEmail, password: testPassword });
+
     cookie = loginRes.headers['set-cookie']; // pisa la cookie de user
 
     // Crear evento
@@ -91,11 +92,12 @@ test('flujo completo: promover a organizer → crear evento → publicar → ins
     assert.equal(createRes.status, 201);
     eventId = createRes.body.payload._id;
 
-    // Publicar
+    // Editar status
     const publishRes = await request(app)
         .patch(`/api/events/${eventId}/status`)
         .set('Cookie', cookie)
         .send({ status: 'published' });
+
     assert.equal(publishRes.status, 200);
 
     // Inscribirse
@@ -103,6 +105,7 @@ test('flujo completo: promover a organizer → crear evento → publicar → ins
         .post(`/api/events/${eventId}/tickets`)
         .set('Cookie', cookie)
         .send({ quantity: 1 });
+
     assert.equal(ticketRes.status, 201);
     ticketId = ticketRes.body.payload._id;
 
@@ -111,12 +114,14 @@ test('flujo completo: promover a organizer → crear evento → publicar → ins
         .post(`/api/events/${eventId}/tickets`)
         .set('Cookie', cookie)
         .send({ quantity: 1 });
+
     assert.equal(duplicateRes.status, 409);
 
     // Ver inscriptos del evento (populate sin password)
     const viewRes = await request(app)
         .get(`/api/events/${eventId}/tickets`)
         .set('Cookie', cookie);
+
     assert.equal(viewRes.status, 200);
     assert.equal(viewRes.body.payload[0].user.password, undefined);
 
@@ -124,6 +129,7 @@ test('flujo completo: promover a organizer → crear evento → publicar → ins
     const cancelRes = await request(app)
         .patch(`/api/tickets/${ticketId}/cancel`)
         .set('Cookie', cookie);
+
     assert.equal(cancelRes.status, 200);
     assert.equal(cancelRes.body.payload.status, 'cancelled');
 
@@ -131,5 +137,6 @@ test('flujo completo: promover a organizer → crear evento → publicar → ins
     const doubleCancel = await request(app)
         .patch(`/api/tickets/${ticketId}/cancel`)
         .set('Cookie', cookie);
+
     assert.equal(doubleCancel.status, 409);
 });

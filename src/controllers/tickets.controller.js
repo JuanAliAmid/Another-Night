@@ -27,7 +27,7 @@ const createTicketController = async (req, res, next) => {
 
         await nodeMailerService.sendTicketConfirmationEmail({ to: email, userName: first_name, eventTitle: event.title, ticketCode: ticket.code });
 
-        return res.status(201).json({ status: 'success', payload: ticket });
+        return res.status(201).json({ status: 'success', payload: resDto.ticketDto(ticket.toObject()) });
     } catch (error) {
         return next(error);
     }
@@ -46,7 +46,7 @@ const getMyTicketController = async (req, res, next) => {
             throw error;
         };
 
-        return res.status(200).json({ status: 'success', payload: ticket });
+        return res.status(200).json({ status: 'success', payload: resDto.ticketDto(ticket.toObject()) });
     } catch (error) {
         return next(error);
     }
@@ -90,7 +90,7 @@ const cancelledTicketsController = async (req, res, next) => {
         await nodeMailerService.sendTicketCancellationEmail({ to: email, userName: first_name, eventTitle: event.title, ticketCode: ticketCancelled.code });
 
 
-        return res.status(200).json({ status: 'success', payload: ticketCancelled });
+        return res.status(200).json({ status: 'success', payload: resDto.ticketDto(ticketCancelled.toObject()) });
     } catch (error) {
         return next(error);
     }

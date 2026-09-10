@@ -18,7 +18,7 @@ const getEventByIdDao = async (_id) => {
 }
 
 const updateDao = async (_id, data) => {
-    const eventUpdate = await EventModel.findByIdAndUpdate(_id, data, { new: true });
+    const eventUpdate = await EventModel.findByIdAndUpdate(_id, data, { returnDocument: 'after' });
     return eventUpdate;
 }
 

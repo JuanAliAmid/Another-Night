@@ -7,6 +7,6 @@ const connectBD = async () => {
         console.log('Conexión exitosa');
     } catch (error) {
         console.error('Error al conectar', error.message);
-    }
-}
+    };
+};
 export default connectBD;

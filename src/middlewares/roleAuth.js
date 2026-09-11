@@ -9,9 +9,9 @@ const rolesAuth = (...permisos) => {
             return res.status(403).json({ error: 'No tiene privilegios suficientes' });
         }
         next();
-    }
-}
+    };
+};
 
 export default {
     rolesAuth
-}
+};

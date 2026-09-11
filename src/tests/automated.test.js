@@ -1,6 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import '../config/env.js'; // este import fuerza a que env.js corra antes, así cuando app.js se ejecuta ya están cargadas las variables de entorno y no vacías 
+import '../config/env.js'; // este import fuerza a que env.js corra antes, así cuando app.js se ejecuta ya están las variables de entorno cargadas y no vacías 
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';

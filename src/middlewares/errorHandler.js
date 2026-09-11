@@ -9,7 +9,7 @@ const error = ((err, _req, res, _next) => {
   } else if (err.code === 11000) {
     status = 409;
     message = 'El email ingresado ya está registrado';
-  }
+  };
 
   res.status(status).json({ status: 'error', message: message });
 

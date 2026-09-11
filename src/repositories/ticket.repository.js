@@ -3,7 +3,7 @@ import ticketDao from "../dao/ticket.dao.js";
 const getTicketById = async (ticketId) => {
     const ticket = await ticketDao.getTicketByIdDao(ticketId);
     return ticket;
-}
+};
 
 const createTicket = async (ticketData) => {
     const newTicket = await ticketDao.createTicketDao(ticketData);
@@ -32,4 +32,4 @@ export default {
     viewEventTickets,
     getMyTicket,
     createTicket
-}
+};

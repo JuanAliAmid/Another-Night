@@ -1,5 +1,5 @@
 import passport from "passport";
-import resDto from "../utils/res.dto.js";
+import resDto from "../dto/res.dto.js";
 import { env } from "../config/env.js";
 import jwtLoginVerify from "../utils/jwt.js";
 
@@ -9,7 +9,7 @@ const sessionsStatus = async (_request, response, next) => {
         return response.status(200).json({ status: 'success', message: "Recurso sessions preparado. Sin logica de autenticacion en sessions" });
     } catch (error) {
         return next(error);
-    }
+    };
 };
 
 const sessionLogout = (req, res, next) => {
@@ -31,7 +31,7 @@ const sessionLogout = (req, res, next) => {
         });
 
     })(req, res, next);
-}
+};
 
 const sessionsRegister = async (req, res, next) => {
     passport.authenticate('register', { session: false }, (err, user, _info) => {
@@ -44,7 +44,7 @@ const sessionsRegister = async (req, res, next) => {
 
         return res.status(201).json({ status: "success", payload: resto });
     })(req, res, next);
-}
+};
 
 const sessionsLogin = async (req, res, next) => {
     passport.authenticate('login', { session: false }, (err, user, _info) => {
@@ -67,7 +67,7 @@ const sessionsLogin = async (req, res, next) => {
 
         return res.status(200).json({ status: "success", message: "Login correcto" });
     })(req, res, next);
-}
+};
 
 const sessionsCurrent = async (req, res, _next) => {
     const { _id: id, email: email_user, role } = req.user;
@@ -78,7 +78,7 @@ const sessionsCurrent = async (req, res, _next) => {
         role: role
     };
     return res.status(200).json({ status: 'success', payload: payload });
-}
+};
 
 export default {
     sessionsStatus,

@@ -51,6 +51,11 @@ const createEventService = async (eventData) => {
 
 const getEventByIdService = async (_id) => {
     const eventEncontrado = await eventRepository.getEventById(_id);
+    if (!eventEncontrado) {
+        const error = new Error('Evento no encontrado');
+        error.status = 404;
+        throw error;
+    }
     return eventEncontrado;
 };
 
@@ -69,6 +74,12 @@ const updateStatusService = async (id, currentStatus, newStatus) => {
     if (currentStatus === 'cancelled' || currentStatus === 'finished') {
         const error = new Error('No se puede modificar el estado de un evento cancelado o finalizado');
         error.status = 409;
+        throw error;
+    }
+
+    if (newStatus !== 'draft' && newStatus !== 'published' && newStatus !== 'cancelled' && newStatus !== 'finished') {
+        const error = new Error('Error de estado');
+        error.status = 400;
         throw error;
     }
     const statusUpdate = await eventRepository.update(id, { status: newStatus });

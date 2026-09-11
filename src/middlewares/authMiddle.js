@@ -6,7 +6,7 @@ const auth = (req, res, next) => {
         if (err) return next(err);
 
         if (!user) {
-            return res.status(401).json({ status: 'error', message: 'No hay sesión válida' })
+            return res.status(401).json({ status: 'error', message: 'No hay sesión válida' });
         }
 
         req.user = user;
@@ -17,4 +17,4 @@ const auth = (req, res, next) => {
 
 export default {
     auth
-}
+};

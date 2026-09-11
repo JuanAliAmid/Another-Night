@@ -78,11 +78,6 @@ const loginUserService = async (userData) => {
 };
 //Sessions
 
-const findUserByEmail = async (email) => {
-    const findEmail = await userRepository.findUserByEmail(email);
-    return findEmail;
-};
-
 const findUserById = async (_id) => {
     const user = await userRepository.findUserById(_id);
     if (!user) {
@@ -93,24 +88,8 @@ const findUserById = async (_id) => {
     return user;
 };
 
-const createUser = async (userData) => {
-
-    if (String(userData.password) === '12345678910' || String(userData.password) === '12345' || userData.password === 'aeiou') {
-        throw new Error('Contraseña insegura, intente con una nueva');
-    } else if (String(userData.password).length <= 6) {
-        throw new Error('La contraseña debe tener más de 6 caracteres');
-    };
-
-    userData.password = await createHash(userData.password);
-
-    const newUser = await userRepository.createUser(userData);
-
-    return newUser;
-};
-
 export default {
     getAllUsersService,
-    createUser,
     findUserByEmail,
     registerUserService,
     loginUserService,

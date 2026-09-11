@@ -3,16 +3,16 @@ import userModel from "../models/user.model.js";
 const getAllUsersDao = async () => {
     const users = await userModel.find().select('-password');
     return users;
-}
+};
 
 //Sessions
 const findUserByEmail = async (email) => {
-    const cleanEmail = email.toLowerCase().trim()
+    const cleanEmail = email.toLowerCase().trim();
     return await userModel.findOne({ email: cleanEmail }).lean();
 };
 
 const findUserById = async (id) => {
-    return await userModel.findById(id).select('-password')
+    return await userModel.findById(id).select('-password');
 };
 
 const createUser = async (userData) => {
@@ -24,4 +24,4 @@ export default {
     createUser,
     findUserByEmail,
     findUserById
-}
+};

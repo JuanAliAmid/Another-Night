@@ -27,6 +27,11 @@ MONGO_URL="mongodb://localhost:27017/another-night"
 JWT_SECRET= clave_secreta
 JWT_EXPIRES_IN=7d
 NODE_ENV=development
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=tu_correo@gmail.com
+MAIL_PASS=tu_contraseña_de_aplicacion
+MAIL_FROM="Another Night <tu_correo@gmail.com>"
 ```
 
 4. Levantá el servidor:
@@ -53,6 +58,11 @@ npm start
 - `NODE_ENV` = #Entorno: development | production | test 
 - `JWT_SECRET` = #Clave secreta para firmar JWT    
 - `JWT_EXPIRES_IN`= #Duración de token
+- `MAIL_HOST` = #Host SMTP del servicio de email
+- `MAIL_PORT` = #Puerto SMTP
+- `MAIL_USER` = #Usuario/email para autenticar el envío
+- `MAIL_PASS` = #Contraseña o app password del usuario de mail
+- `MAIL_FROM` = #Dirección que figura como remitente
 
 ## Cómo ejecutar
 
@@ -288,6 +298,38 @@ POST /api/sessions/logout
 
 El modelo `User` tiene un campo `role` (`enum: ['admin', 'organizer', 'user']`, `default: 'user'`). El registro público (`POST /api/sessions/register`) ignora cualquier `role` enviado en el body; el usuario siempre se crea como `user`.
 
+## Usuarios de prueba
+
+El registro público (`POST /api/sessions/register`) siempre crea usuarios
+con `role: 'user'` — no existe (ni debería existir) un endpoint público
+para asignarse `organizer` o `admin` directamente.
+
+### Cómo probar los endpoints de `organizer` / `admin`
+
+1. Registrate normalmente:
+```bash
+   POST /api/sessions/register
+   { "first_name": "Ana", "last_name": "Test", "email": "ana@mail.com", "password": "12345678" }
+```
+
+2. Promové el usuario a mano, directo en la base (con `mongosh` o MongoDB Compass):
+```js
+   db.users.updateOne(
+     { email: "ana@mail.com" },
+     { $set: { role: "organizer" } } // o "admin"
+   )
+```
+
+3. **Volvé a hacer login.** El JWT es una foto del usuario al momento de loguearse — cambiar el rol en la base no actualiza el token que ya tenías. Sin este paso, seguís recibiendo `403` aunque el rol ya esté cambiado en Mongo.
+```bash
+   POST /api/sessions/login
+   { "email": "ana@mail.com", "password": "12345678" }
+```
+
+4. Ya podés usar la cookie de esta sesión nueva para probar rutas de `organizer`/`admin` (crear eventos, ver inscriptos, editar cualquier evento como `admin`, etc).
+
+> Nota: `src/tests/automated.test.js` automatiza exactamente este mismo procedimiento (`userModel.updateOne()` + nuevo login) para testear el flujo de `organizer` de punta a punta.
+
 ### Matriz de permisos
 
 | Acción | user | organizer | admin |
@@ -313,7 +355,7 @@ El modelo `User` tiene un campo `role` (`enum: ['admin', 'organizer', 'user']`, 
 | Método | Ruta                    | Middlewares                                                  | Permiso                                |
 |--------|-------------------------|--------------------------------------------------------------|----------------------------------------|
 | GET    | `/api/sessions/current` | `auth`                                                       | Cualquier autenticado                  |
-| GET    | `/api/sessions/users`   | `auth`, `rolesAuth('admin')`                                 | `admin`                                |
+| GET    | `/api/users`            | `auth`, `rolesAuth('admin')`                                 | `admin`                                |
 | POST   | `/api/events`           | `auth`, `rolesAuth('organizer','admin')`                     | `organizer`, `admin`                   |
 | PATCH  | `/api/events/:id`       | `auth`, `rolesAuth('organizer','admin')` + chequeo de dueño  | `organizer` (propios), `admin` (todos) |
 
@@ -399,14 +441,14 @@ Permite que un usuario autenticado se inscriba a un evento publicado, gestionand
 
 Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos completos embebidos.
 
-| Campo         | Tipo     | Detalle                                              |
-|---------------|----------|-------------------------------------------------------|
-| `user`        | ObjectId | Referencia a `User`                                    |
-| `event`       | ObjectId | Referencia a `Event`                                   |
-| `status`      | String   | `confirmed` \| `pending` \| `cancelled` (default: `confirmed`) |
-| `quantity`    | Number   | Cantidad de entradas (mínimo 1)                        |
-| `code`        | String   | Código de reserva único, generado por el servidor al confirmar la inscripción |
-| `cancelledAt` | Date     | Se completa recién al cancelar (`null` hasta entonces) |
+| Campo               | Tipo     | Detalle                                              |
+|---------------------|----------|-------------------------------------------------------|
+| `user`              | ObjectId | Referencia a `User`                                    |
+| `event`             | ObjectId | Referencia a `Event`                                   |
+| `status`            | String   | `confirmed` \| `pending` \| `cancelled` (default: `confirmed`) |
+| `quantity`          | Number   | Cantidad de entradas (mínimo 1)                        |
+| `reservationCode`   | String   | Código de reserva único, generado por el servidor al confirmar la inscripción |
+| `cancelledAt`       | Date     | Se completa recién al cancelar (`null` hasta entonces) |
 
 #### Rutas disponibles
 
@@ -439,7 +481,7 @@ Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos compl
 
 #### Notificaciones por email
 
-Al confirmarse una inscripción, `nodeMailer.service.js` envía un email de confirmación vía Nodemailer (`config/nodeMailer.config.js`), usando las variables `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS` y `MAIL_FROM` del entorno — nunca credenciales hardcodeadas. En desarrollo se usa [Ethereal Email](https://ethereal.email/create), que no envía correos reales y devuelve una URL de previsualización del mensaje.
+Al confirmarse una inscripción, `nodeMailer.service.js` envía un email de confirmación vía Nodemailer (`config/nodeMailer.config.js`), usando las variables `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS` y `MAIL_FROM` del entorno — nunca credenciales hardcodeadas. En desarrollo se usa una cuenta de Gmail con contraseña de aplicación (requiere verificación en 2 pasos activada en la cuenta de Google).
 
 ## Arquitectura en capas
 
@@ -463,7 +505,7 @@ Concentra toda la lógica de negocio de la aplicación: validaciones de datos, c
 ### Controller (`src/controllers/`)
 Solo coordina la request y la response: extrae datos del `body`/`params`/`query`, llama al Service correspondiente, aplica el DTO si la respuesta lo requiere, y devuelve el resultado. No calcula cupos, no valida estados ni resuelve ninguna regla de negocio — toda esa lógica vive en el Service.
 
-### DTO (`src/utils/user.dto.js`)
+### DTO (`src/utils/res.dto.js`)
 Filtra los datos que efectivamente se envían al cliente antes de la respuesta final, como capa extra de seguridad (además del `.select()` aplicado en los DAO/populate de origen). `userDto` y `ticketDto` remueven el campo `password` — incluyendo el de un `user` embebido por `populate` dentro de un ticket. Se aplica en el Controller, justo antes de armar la respuesta.
 
 ### Middlewares (`src/middlewares/`)

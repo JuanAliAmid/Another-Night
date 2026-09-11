@@ -4,16 +4,15 @@ import eventService from "./event.service.js";
 const createTicketService = async (ticketData) => {
     const event = await eventService.getEventByIdService(ticketData.event);
 
+    if (!event) {
+        const error = new Error('Evento inexistente');
+        error.status = 404;
+        throw error;
+    };
     const date = new Date(event.date);
     if (date < new Date()) {
         const error = new Error('No puede inscribir a un evento con una fecha pasada');
         error.status = 400;
-        throw error;
-    };
-
-    if (!event) {
-        const error = new Error('Evento inexistente');
-        error.status = 404;
         throw error;
     };
     if (event.status !== 'published') {
@@ -45,7 +44,7 @@ const createTicketService = async (ticketData) => {
         throw error;
     }
 
-    ticketData.code = Math.random().toString(36).substring(2, 10);
+    ticketData.reservationCode = Math.random().toString(36).substring(2, 10);
 
     const newTicket = await ticketRepository.createTicket(ticketData);
     return { ticket: newTicket, event };
@@ -53,11 +52,22 @@ const createTicketService = async (ticketData) => {
 
 const getMyTicketService = async (_id) => {
     const ticketFound = await ticketRepository.getMyTicket(_id);
+
+    if (!ticketFound || ticketFound.length === 0) {
+        const error = new Error('No se encontró el ticket buscado');
+        error.status = 404;
+        throw error;
+    };
     return ticketFound;
 };
 
 const viewEventTicketsService = async (eventId) => {
     const tickets = await ticketRepository.viewEventTickets(eventId);
+    if (!tickets || tickets.length === 0) {
+        const error = new Error('No hay tickets registrados en este evento');
+        error.status = 404;
+        throw error;
+    }
     return tickets;
 };
 

@@ -4,9 +4,9 @@ import { env } from './env.js';
 const connectBD = async () => {
     try {
         await connect(env.mongo_url);
-        console.log('Conexión exitosa');
+        console.info('Conexión exitosa');
     } catch (error) {
-        console.error('Error al conectar', error.message);
+        console.info('Error al conectar', error.message);
     };
 };
 export default connectBD;

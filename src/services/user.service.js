@@ -90,7 +90,6 @@ const findUserById = async (_id) => {
 
 export default {
     getAllUsersService,
-    findUserByEmail,
     registerUserService,
     loginUserService,
     findUserById

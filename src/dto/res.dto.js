@@ -11,8 +11,8 @@ const ticketDto = (ticket) => {
     return { user: restoUser, ...Ticket };
 };
 const eventDto = (event) => {
-    const { organizer, ...resto } = event;
-    return resto;
+    const { _id: id, ...resto } = event;
+    return { id, ...resto };
 };
 
 export default {

@@ -6,5 +6,5 @@ connectBD();
 
 const PORT = env.port;
 app.listen(PORT, () => {
-   console.log(`Server corriendo en http://localhost:${PORT}`);
+   console.info(`Server corriendo en http://localhost:${PORT}`);
 });

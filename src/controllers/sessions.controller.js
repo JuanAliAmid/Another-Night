@@ -24,11 +24,9 @@ const sessionLogout = (req, res, next) => {
 
         req.user = user;
 
-        req.logout((err) => {
-            if (err) return next(err);
-            res.clearCookie('currentUser');
-            res.status(200).json({ status: 'success', message: 'Logout exitoso' });
-        });
+
+        res.clearCookie('currentUser');
+        res.status(200).json({ status: 'success', message: 'Logout exitoso' });
 
     })(req, res, next);
 };

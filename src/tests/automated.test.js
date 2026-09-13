@@ -89,7 +89,7 @@ test('flujo completo: promover a organizer → crear evento → publicar → ins
         .send({ title: 'Evento test', description: 'Prueba', price: 1000, capacity: 2, category: 'Electronica', location: 'CABA', date: '2026-12-01' });
 
     assert.equal(createRes.status, 201);
-    eventId = createRes.body.payload._id;
+    eventId = createRes.body.payload.id;
 
     // Editar status
     const publishRes = await request(app)

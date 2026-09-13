@@ -19,7 +19,7 @@ const createTicketController = async (req, res, next) => {
             throw error;
         } else if (!quantity) {
             const error = new Error('Debe ingresar cantidad');
-            error.status = 404;
+            error.status = 400;
             throw error;
         };
 

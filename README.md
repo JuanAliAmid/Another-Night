@@ -270,7 +270,7 @@ POST /api/sessions/logout
 ```json
 {
   "status": "success",
-  "payload": "Logout exitoso"
+  "message": "Logout exitoso"
 }
 ```
 ### Otras respuestas posibles
@@ -352,12 +352,13 @@ para asignarse `organizer` o `admin` directamente.
 
 ### Rutas protegidas
 
-| Método | Ruta                    | Middlewares                                                  | Permiso                                |
-|--------|-------------------------|--------------------------------------------------------------|----------------------------------------|
-| GET    | `/api/sessions/current` | `auth`                                                       | Cualquier autenticado                  |
-| GET    | `/api/users`            | `auth`, `rolesAuth('admin')`                                 | `admin`                                |
-| POST   | `/api/events`           | `auth`, `rolesAuth('organizer','admin')`                     | `organizer`, `admin`                   |
-| PATCH  | `/api/events/:id`       | `auth`, `rolesAuth('organizer','admin')` + chequeo de dueño  | `organizer` (propios), `admin` (todos) |
+| Método | Ruta                     | Middlewares                                                  | Permiso                                |
+|--------|--------------------------|---------------------------------------------------------------|-----------------------------------------|
+| GET    | `/api/sessions/current`  | `auth`                                                        | Cualquier autenticado                   |
+| GET    | `/api/users`             | `auth`, `rolesAuth('admin')`                                  | `admin`                                 |
+| POST   | `/api/events`            | `auth`, `rolesAuth('organizer','admin')`                      | `organizer`, `admin`                    |
+| PATCH  | `/api/events/:id/status` | `auth`, `adminOrOwnerMiddle`                                  | `organizer` (propio), `admin` (todos)   |
+| PUT    | `/api/events/:id`        | `auth`, `adminOrOwnerMiddle`                                  | `organizer` (propio), `admin` (todos)   |
 
 ### Propiedad de recursos
 
@@ -401,11 +402,11 @@ En `PATCH /api/events/:id`, si el rol es `organizer`, se compara `event.organize
 
 - GET /api/events — Listar eventos, con filtros, paginación y orden. Acción de acceso público, con filtrado por campos, paginación `(page, limit)` y orden ascendente o descendente por fecha.
 
-- GET /api/events/:id — Obtener un evento por su id. Accesible para usuarios logueados y no logueados. Si el evento no existe, devuelve `res.status(404).json({ message: 'Evento no encontrado' })`.
+- GET /api/events/:id — Obtener un evento por su id. Accesible para usuarios logueados y no logueados. Si el evento no existe, devuelve `{ status: 'error', message: 'Evento no encontrado' }`.
 
-- PUT /api/events/:id — Editar campos de un evento existente. Permitido solo para el `organizer` dueño del evento o un `admin`. Si un usuario que no cumple esos requisitos intenta modificar el evento, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`. También puede devolver `res.status(409).json({ status: 'error', message: 'No se puede editar un evento cancelado o finalizado' })` cuando el evento está `cancelled`/`finished`.
+- PUT /api/events/:id — Editar campos de un evento existente. Permitido solo para el `organizer` dueño del evento o un `admin`. Si un usuario que no cumple esos requisitos intenta modificar el evento, devuelve `{ status: 'error', message: 'No tiene permisos' }`. También puede devolver `{ status: 'error', message: 'No se puede editar un evento cancelado o finalizado' }` cuando el evento está `cancelled`/`finished`.
 
-- PATCH /api/events/:id/status — Cambiar el estado de un evento. Permitido solo para el dueño del evento o un `admin`. Si no se cumplen esos requisitos, devuelve `res.status(403).json({ status: 'error', message: 'Falta de permisos' })`. Si se intenta asignar un valor de estado que no está en el `enum` de `EventModel`, devuelve `res.status(400).json({ message: 'Error de estado' })`. También puede devolver `res.status(409).json({ status: 'error', message: 'No se puede modificar el estado de un evento cancelado o finalizado' })` cuando el evento está `cancelled`/`finished`.
+- PATCH /api/events/:id/status — Cambiar el estado de un evento. Permitido solo para el dueño del evento o un `admin`. Si no se cumplen esos requisitos, devuelve `{ status: 'error', message: 'No tiene permisos' }`. Si se intenta asignar un valor de estado que no está en el `enum` de `EventModel`, devuelve `{ status: 'error', message: 'Error de estado' }`. También puede devolver `{ status: 'error', message: 'No se puede modificar el estado de un evento cancelado o finalizado' }` cuando el evento está `cancelled`/`finished`.
 
 #### Filtros disponibles en el listado (GET /api/events)
 
@@ -461,7 +462,7 @@ Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos compl
 
 #### Detalle de rutas
 
-- **POST /api/events/:eid/tickets** — Crea una inscripción. Antes de crear el ticket, valida en el service (nunca en el controller): que el evento exista, que esté `published` (no `cancelled`/`finished`), que `quantity` sea un número mayor a 0, que haya cupos suficientes (capacidad del evento menos la suma de `quantity` de tickets `confirmed`, sin contar los `cancelled`) y que el usuario no tenga ya un ticket `confirmed` para ese mismo evento. Si todas las validaciones pasan, genera un `code` de reserva y envía un email de confirmación por Nodemailer.
+- **POST /api/events/:eid/tickets** — Crea una inscripción. Antes de crear el ticket, valida en el service (nunca en el controller): que el evento exista, que esté `published` (no `cancelled`/`finished`), que `quantity` sea un número mayor a 0, que haya cupos suficientes (capacidad del evento menos la suma de `quantity` de tickets `confirmed`, sin contar los `cancelled`) y que el usuario no tenga ya un ticket `confirmed` para ese mismo evento. Si todas las validaciones pasan, genera un `reservationCode` de reserva y envía un email de confirmación por Nodemailer.
 
 - **GET /api/events/:eid/tickets** — Lista los tickets de un evento puntual. Protegida con `adminOrOwnerMiddle`: solo puede consultarla el `organizer` dueño de ese evento, o un `admin`.
 
@@ -505,7 +506,7 @@ Concentra toda la lógica de negocio de la aplicación: validaciones de datos, c
 ### Controller (`src/controllers/`)
 Solo coordina la request y la response: extrae datos del `body`/`params`/`query`, llama al Service correspondiente, aplica el DTO si la respuesta lo requiere, y devuelve el resultado. No calcula cupos, no valida estados ni resuelve ninguna regla de negocio — toda esa lógica vive en el Service.
 
-### DTO (`src/utils/res.dto.js`)
+### DTO (`src/dto/res.dto.js`)
 Filtra los datos que efectivamente se envían al cliente antes de la respuesta final, como capa extra de seguridad (además del `.select()` aplicado en los DAO/populate de origen). `userDto` y `ticketDto` remueven el campo `password` — incluyendo el de un `user` embebido por `populate` dentro de un ticket. Se aplica en el Controller, justo antes de armar la respuesta.
 
 ### Middlewares (`src/middlewares/`)
@@ -547,6 +548,23 @@ node --test src/tests/automated.test.js
 
 El flujo completo cubre de punta a punta las reglas de negocio principales: control de roles, control de cupos, inscripción única por usuario, transiciones de estado válidas en tickets, y que el modelo `User` nunca se filtra con `password` incluido — ni en respuestas directas ni en documentos populados.
 
+## Evidencia — Flujo completo (10 casos)
+
+Capturas de los 10 casos verificados antes de la entrega en [`src/assets/evidencia/`](./src/assets/evidencia/).
+
+| Caso | Descripción | Resultado |
+|------|-------------|-----------|
+| 1 | Registro → login → current → logout → current 401 | ✅ |
+| 2 | user sin rol crea evento | ✅ 403 |
+| 3 | organizer crea → publica → user se inscribe | ✅ |
+| 4 | Inscripción duplicada | ✅ 409 |
+| 5 | Sin cupo disponible | ✅ 409 |
+| 6 | Cancelar ticket → cupo liberado → nueva inscripción | ✅ |
+| 7 | Organizer edita evento ajeno | ✅ 403 |
+| 8 | Admin edita evento ajeno | ✅ 200 |
+| 9 | Ninguna respuesta expone password | ✅ |
+| 10 | Paginación con estructura correcta | ✅ |
+
 ## Estructura de carpetas
 ```
 Another Night/
@@ -554,6 +572,7 @@ Another Night/
 │   ├── app.js                
 │   ├── server.js 
 │   ├── assets/
+│   │   ├── evidencia/    # capturas de los 10 casos verificados
 │   │   ├── client.png
 │   │   ├── otro-dueño-403.png
 │   │   ├── 401-sessions-current.png
@@ -609,11 +628,12 @@ Another Night/
 │   │   ├── authMiddle.js
 │   │   ├── adminOrOwnerMiddle.js
 │   │   ├── roleAuth.js
-│   │   └── errorHandler.js          
+│   │   └── errorHandler.js
+│   ├── dto/
+│   │   └── res.dto.js          
 │   └── utils/
 │       ├── hash.js
-│       ├── jwt.js
-│       └── res.dto.js
+│       └──  jwt.js
 ├── .env.example              
 ├── .gitignore                
 ├── package-lock.json               

@@ -446,7 +446,7 @@ Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos compl
 |---------------------|----------|-------------------------------------------------------|
 | `user`              | ObjectId | Referencia a `User`                                    |
 | `event`             | ObjectId | Referencia a `Event`                                   |
-| `status`            | String   | `confirmed` \| `pending` \| `cancelled` (default: `confirmed`) |
+| `status`            | String   | `active` \| `pending` \| `cancelled` (default: `active`) |
 | `quantity`          | Number   | Cantidad de entradas (mínimo 1)                        |
 | `reservationCode`   | String   | Código de reserva único, generado por el servidor al confirmar la inscripción |
 | `cancelledAt`       | Date     | Se completa recién al cancelar (`null` hasta entonces) |
@@ -462,7 +462,7 @@ Solo guarda referencias (`ObjectId`) a `User` y `Event`, nunca los objetos compl
 
 #### Detalle de rutas
 
-- **POST /api/events/:eid/tickets** — Crea una inscripción. Antes de crear el ticket, valida en el service (nunca en el controller): que el evento exista, que esté `published` (no `cancelled`/`finished`), que `quantity` sea un número mayor a 0, que haya cupos suficientes (capacidad del evento menos la suma de `quantity` de tickets `confirmed`, sin contar los `cancelled`) y que el usuario no tenga ya un ticket `confirmed` para ese mismo evento. Si todas las validaciones pasan, genera un `reservationCode` de reserva y envía un email de confirmación por Nodemailer.
+- **POST /api/events/:eid/tickets** — Crea una inscripción. Antes de crear el ticket, valida en el service (nunca en el controller): que el evento exista, que esté `active` (no `cancelled`/`finished`), que `quantity` sea un número mayor a 0, que haya cupos suficientes (capacidad del evento menos la suma de `quantity` de tickets `active`, sin contar los `cancelled`) y que el usuario no tenga ya un ticket `active` para ese mismo evento. Si todas las validaciones pasan, genera un `reservationCode` de reserva y envía un email de confirmación por Nodemailer.
 
 - **GET /api/events/:eid/tickets** — Lista los tickets de un evento puntual. Protegida con `adminOrOwnerMiddle`: solo puede consultarla el `organizer` dueño de ese evento, o un `admin`.
 

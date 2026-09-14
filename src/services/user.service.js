@@ -16,7 +16,7 @@ const registerUserService = async (userData) => {
 
     if (userData.password.length <= 6 || userData.password === "12345" || userData.password === "12345678910" || userData.password === "aeiou") {
         const error = new Error('Formato de contraseña inválido');
-        error.status = 422;
+        error.status = 400;
         throw error;
     };
 

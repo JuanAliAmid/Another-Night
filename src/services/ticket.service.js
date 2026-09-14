@@ -27,7 +27,7 @@ const createTicketService = async (ticketData) => {
     };
 
     const ticketCount = await ticketRepository.viewEventTickets(ticketData.event);
-    const actives = ticketCount.filter(tick => tick.status === 'confirmed');
+    const actives = ticketCount.filter(tick => tick.status === 'active');
     const totalQuantity = actives.reduce((a, b) => a + b.quantity, 0);
 
     const cuposDisponibles = event.capacity - totalQuantity;
@@ -38,7 +38,7 @@ const createTicketService = async (ticketData) => {
         throw error;
     };
 
-    if (ticketCount.some(a => a.status === 'confirmed' && a.user.equals(ticketData.user))) {
+    if (ticketCount.some(a => a.status === 'active' && a.user.equals(ticketData.user))) {
         const error = new Error('El usuario ya tiene un ticket activo para el evento');
         error.status = 409;
         throw error;

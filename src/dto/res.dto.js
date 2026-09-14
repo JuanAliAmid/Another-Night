@@ -3,12 +3,12 @@ const userDto = (user) => {
     return resto;
 };
 const ticketDto = (ticket) => {
-    const { user, ...Ticket } = ticket;
+    const { user, _id: id, ...Ticket } = ticket;
     if (!user || user.email === undefined) {
-        return { user, ...Ticket };  // lo dejo tal cual, sin tocar nada
+        return { id, user, ...Ticket };  // lo dejo tal cual, sin tocar nada
     }
     const { password, ...restoUser } = user;
-    return { user: restoUser, ...Ticket };
+    return { id, user: restoUser, ...Ticket };
 };
 const eventDto = (event) => {
     const { _id: id, ...resto } = event;

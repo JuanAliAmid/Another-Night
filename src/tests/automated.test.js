@@ -106,7 +106,7 @@ test('flujo completo: promover a organizer → crear evento → publicar → ins
         .send({ quantity: 1 });
 
     assert.equal(ticketRes.status, 201);
-    ticketId = ticketRes.body.payload._id;
+    ticketId = ticketRes.body.payload.id;
 
     // Inscribirse de nuevo → error de negocio, no 500
     const duplicateRes = await request(app)

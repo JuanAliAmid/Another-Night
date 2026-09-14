@@ -1,5 +1,4 @@
 import transporter from "../config/nodeMailer.config.js";
-import nodemailer from 'nodemailer'
 
 // enviar confirmacion de tickets
 const sendTicketConfirmationEmail = async ({ to, userName, eventTitle, ticketCode }) => {
